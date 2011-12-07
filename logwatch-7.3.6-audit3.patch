@@ -1,0 +1,12 @@
+diff -up logwatch-7.3.6/scripts/services/audit.pom logwatch-7.3.6/scripts/services/audit
+--- logwatch-7.3.6/scripts/services/audit.pom	2008-06-10 14:34:52.000000000 +0200
++++ logwatch-7.3.6/scripts/services/audit	2008-06-20 09:31:34.000000000 +0200
+@@ -79,7 +79,7 @@ while ($ThisLine = <STDIN>) {
+ 	( $ThisLine =~ /^audit\([0-9.]+:[0-9]+\): ( ?(path|cwd|item|name|flags)=["\/A-Za-z0-9]*)*$/) or
+ 	( $ThisLine =~ /: enforcing=[0-9]+ old_enforcing=[0-9]+ auid=[0-9]+/) or
+ 	( $ThisLine =~ /: policy loaded auid=[0-9]+/) or
+-	( $ThisLine =~ /: user pid=[0-9]+ uid=[0-9]+ auid=[0-9]+ subj=system_u:system_r:system_dbusd_t:[0-9a-z]+ msg=/) or
++	( $ThisLine =~ /: user pid=[0-9]+ uid=[0-9]+ auid=[0-9]+ subj=system_u:system_r:system_dbusd_t:[0-9a-z:.\-]+ msg=/) or
+ 	( $ThisLine =~ /audit\([0-9.]+:[0-9]+\): (selinux=[0-9]+|auid=[0-9]+|prom=[0-9]+|old_prom=[0-9]+|dev=[^ ]+| )+$/) or
+         ( $ThisLine =~ /auditd[ ]+S [0-9A-F]+  [0-9]+  [0-9]+[ ]+[0-9]([ ]*[0-9]+[ ]*|[ ]*)[0-9]+  [0-9]+ \(NOTLB\)/) or
+         ( $ThisLine =~ /Started dispatcher: \/sbin\/audispd pid: [0-9]+/) or

@@ -1,0 +1,48 @@
+diff -up logwatch-7.3.6/scripts/services/sshd.pom logwatch-7.3.6/scripts/services/sshd
+--- logwatch-7.3.6/scripts/services/sshd.pom	2007-10-12 12:21:26.000000000 +0200
++++ logwatch-7.3.6/scripts/services/sshd	2007-10-12 13:01:22.000000000 +0200
+@@ -172,6 +172,8 @@ my %KrbErr = ();
+ my @BadRSA = ();
+ my @Scanned = ();
+ my %OtherList = ();
++my %ChmodErr = ();
++my %ChownErr = ();
+ 
+ my $sftpRequests = 0;
+ my $NetworkErrors = 0;
+@@ -355,6 +357,11 @@ while (defined(my $ThisLine = <STDIN>)) 
+       $KrbErr{"error removing file " . $Error}++;     
+    } elsif ( my ($Pom,$Error) = ($ThisLine =~ /pam_krb5(\[\d*\]): error resolving user name '[^ ]*' to uid\/gid pai/)) {
+       $KrbErr{"error resolving user name '$Error' to uid\/gid pai"}++;
++      # error: chmod /dev/pts/0 0666 failed: Permission denied
++   } elsif (my ($File,$Perm,$Why) = ($ThisLine =~ /error: chmod (.*) (.*) failed: (.*)/)) {
++      $ChmodErr{"$File,$Perm,$Why"}++;
++   } elsif (my ($File,$From,$To,$Why) = ($ThisLine =~ /error: chown (.*) (.*) (.*) failed: (.*)/)) {
++      $ChownErr{"$File,$From,$To,$Why"}++;            
+    } else {
+       # Report any unmatched entries...
+       unless ($ThisLine =~ /fwd X11 connect/) {
+@@ -637,6 +644,23 @@ if ($sftpRequests > 0) {
+    print "\nSFTP subsystem requests: $sftpRequests Time(s)\n";
+ }
+ 
++if (keys %ChmodErr) {
++  print "\nChmod errors:\n";
++  foreach (keys %ChmodErr) {
++    my ($File,$Perm,$Why)= split ",";
++    print "   " . $File . " " . $Perm . " failed(" . $Why . "): ". $ChmodErr{"$File,$Perm,$Why"} . " Time(s)\n";
++  }
++}
++
++if (keys %ChownErr) {
++  print "\nChown errors:\n";
++  foreach (keys %ChownErr) { 
++    my ($File,$From,$To,$Why)= split ",";
++    print "   " . $File . " " . $From . " " .$To . " failed(" . $Why . "): ". $ChmodErr{"$File,$From,$To,$Why"} . " Time(s)\n";
++  }
++}
++              
++
+ if (keys %OtherList) {
+    print "\n**Unmatched Entries**\n";
+    print "$_ : $OtherList{$_} time(s)\n" foreach keys %OtherList;

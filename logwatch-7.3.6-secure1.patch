@@ -1,0 +1,13 @@
+diff -up logwatch-7.3.6/scripts/services/secure.pom logwatch-7.3.6/scripts/services/secure
+--- logwatch-7.3.6/scripts/services/secure.pom	2007-10-10 14:35:11.000000000 +0200
++++ logwatch-7.3.6/scripts/services/secure	2007-10-10 15:33:22.000000000 +0200
+@@ -213,7 +213,8 @@ while (defined($ThisLine = <STDIN>)) {
+       ( $ThisLine =~ /pam_succeed_if\(.*:.*\): error retrieving information about user [a-zA-Z]*/ ) or
+       ( $ThisLine =~ /logfile turned over/) or # newsyslog on OpenBSD
+       ( $ThisLine =~ /Connection closed by/) or
+-      ( $ThisLine =~ /sshd.*: Accepted \S+ for \S+ from [\d\.:a-f]+ port \d+/) # ssh script reads this log 
++      ( $ThisLine =~ /sshd.*: Accepted \S+ for \S+ from [\d\.:a-f]+ port \d+/) or # ssh script reads this log ) 
++      ( $ThisLine =~ /userhelper.*: running (.*) with context (.*)/)
+    ) {
+       # Ignore these entries
+    } elsif ($ThisLine =~ /^spop3d/ || $ThisLine =~ /^pop\(\w+\)\[\d+\]:/) {

@@ -1,0 +1,87 @@
+--- logwatch-7.3.4/scripts/services/named.pom	2007-02-16 04:36:25.000000000 +0100
++++ logwatch-7.3.4/scripts/services/named	2007-05-07 14:47:29.000000000 +0200
+@@ -156,7 +156,15 @@
+       # The message about the end of transfer is the interesting one
+       ($ThisLine =~ /: Transfer started./) or
+       ($ThisLine =~ /D-BUS service (disabled|enabled)./) or
+-      ($ThisLine =~ /D-BUS dhcdbd subscription disabled./)
++      ($ThisLine =~ /D-BUS dhcdbd subscription disabled./) or
++      ($ThisLine =~ /automatic empty zone/) or
++      ($ThisLine =~ /binding TCP socket: address in use/) or
++      ($ThisLine =~ /dbus_mgr initialization failed. D-BUS service is disabled./) or
++      ($ThisLine =~ /dbus_svc_add_filter failed/) or
++      ($ThisLine =~ /isc_log_open 'named.run' failed: permission denied/) or 
++      ($ThisLine =~ /weak RSASHA1 \(5\) key found \(exponent=3\)/) or 
++      ($ThisLine =~ /Bad file descriptor/) or 
++      ($ThisLine =~ /open: .*: file not found/)
+    ) {
+       # Don't care about these...
+    } elsif (
+@@ -237,8 +245,19 @@
+       chomp($ThisLine);
+       $StartLog{$ThisLine}++;
+    } elsif ( (($File,$Line,$Problem) = ($ThisLine =~ /\/etc\/(rndc.key|named.conf):([0-9]+): (unknown option '[^ ]*')/)) or
+-	     (($File,$Line,$Problem) = ($ThisLine =~ /\/etc\/(rndc.key|named.conf):([0-9]+): ('[^ ]' expected near end of file)/)) ) {
++	     (($File,$Line,$Problem) = ($ThisLine =~ /\/etc\/(rndc.key|named.conf):([0-9]+): ('[^ ]' expected near end of file)/)) or
++	     (($File,$Line,$Problem) = ($ThisLine =~ /\/etc\/(named.*.conf):([0-9]+): (.*)/)) or
++	     (($File,$Line,$Problem) = ($ThisLine =~ /()()(could not configure root hints from '.*': file not found)/))) {
+        $ConfProb{$File}{"$Line,$Problem"}++;
++   } elsif ( (($ErrorText) = ($ThisLine =~ /^(RUNTIME_CHECK.*)/))or
++	     (($ErrorText) = ($ThisLine =~ /^(.* REQUIRE.* failed.*)$/)) or
++	     (($ErrorText) = ($ThisLine =~ /(.*: fatal error)/)) ) {
++      $NError{$ErrorText}++;
++   } elsif ( ($From,$Log) = ($ThisLine =~ /invalid command from ([.0-9]*)#[0-9]*: (.*)/) ) {
++      $CCMessages{"$From,$Log"}++;
++   } elsif ( (($Log) = ($ThisLine =~ /(freezing .*zone.*)/)) or
++	     (($Log) = ($ThisLine =~ /(thawing .*zone.*)/)) ) {
++      $CCMessages2{$Log}++;
+    } else {
+       # Report any unmatched entries...
+       # remove PID from named messages
+@@ -413,10 +432,18 @@
+ if (keys %ConfProb) {
+    print "\n Errors in configuration files\n";
+    foreach $File (sort keys %ConfProb) {
+-      print "   file " . $File . "\n";
+-      foreach (keys %{$ConfProb{$File}}) {
+-         ($Line,$Problem) = split ",";
+-         print "      " . $File . ":" . "$Line" . ": " . $Problem . ": " . $ConfProb{$File}{"$Line,$Problem"} . " Time(s)\n";
++      if ($File =~ /.+/) {
++        print "   file " . $File . "\n";
++        foreach (keys %{$ConfProb{$File}}) {
++           ($Line,$Problem) = split ",";
++           print "      " . $File . ":" . "$Line" . ": " . $Problem . ": " . $ConfProb{$File}{"$Line,$Problem"} . " Time(s)\n";
++        }
++      }
++      else {
++        foreach (keys %{$ConfProb{$File}}) {
++           ($Line,$Problem) = split ",";
++            print "   " . $Problem . ": " . $ConfProb{$File}{"$Line,$Problem"} . " Time(s)\n";
++        }
+       }
+    }
+ }
+@@ -442,6 +469,23 @@
+    }
+ }
+ 
++if (keys %NError) {
++   print "\n Errors:\n";
++   foreach $ThisOne (keys %NError) {
++      print "   " . $ThisOne . ": " . $NError{$ThisOne} . " Time(s)\n";
++   }
++}
++
++if ((keys %CCMessages) or (keys %CCMessages2)){
++   print "\n Messages from control channel\n";
++   foreach (keys %CCMessages) {
++      ($From,$Log) = split ",";
++      print "   " . $From . ": " . $Log . ": " . $CCMessages{"$From,$Log"} . " Time(s)\n";
++   }
++   foreach $ThisOne (keys %CCMessages2) {
++      print "   " . $ThisOne . ": " . $CCMessages2{$ThisOne} . " Time(s)\n";
++   }
++}
+ 
+ if (keys %OtherList) {
+    print "\n**Unmatched Entries**\n";

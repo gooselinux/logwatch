@@ -1,0 +1,11 @@
+--- logwatch-7.3.4/scripts/shared/onlyservice.pom	2005-12-01 00:52:27.000000000 +0100
++++ logwatch-7.3.4/scripts/shared/onlyservice	2007-04-13 15:15:15.000000000 +0200
+@@ -20,7 +20,7 @@
+ }
+ 
+ while (defined($ThisLine = <STDIN>)) {
+-    if ($ThisLine =~ m/^... .. ..:..:.. [^ ]* $ServiceName\[[0123456789]*\]: /io) {
++    if ($ThisLine =~ m/^... .. ..:..:..[ ]*[^ ]* $ServiceName\[[0123456789]*\]: /io) {
+       print $ThisLine;
+     }
+     elsif ($ThisLine =~ m/^... .. ..:..:.. [^ ]* [^ ]*\[[0123456789]*\]: \[ID [0-9]+ $ServiceName/io) {

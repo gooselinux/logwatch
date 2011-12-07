@@ -1,0 +1,12 @@
+--- logwatch-7.3.6/scripts/services/xntpd.pom	2007-04-16 05:11:11.000000000 +0200
++++ logwatch-7.3.6/scripts/services/xntpd	2007-05-22 12:44:45.000000000 +0200
+@@ -112,7 +112,8 @@
+         ($ThisLine =~ m/signal_no_reset: signal \d+ had flags \d+/) or
+         ($ThisLine =~ /Deleting interface \#[0-9] [^,]*, [^,]*, interface stats: received=.*, sent=.*, dropped=.*, active_time=.* secs/) or
+         ($ThisLine =~ /Invalid argument/) or
+-        ($ThisLine =~ /Listening on interface .* Disabled/)
++        ($ThisLine =~ /Listening on interface .* Disabled/) or
++        ($ThisLine =~ /Listening on interface .* Enabled/)
+     ) {
+        # Ignore these
+     } elsif ($ThisLine =~ m/ntpd [\d\-\.\w@]+ ... ... .. ..:..:.. /) {

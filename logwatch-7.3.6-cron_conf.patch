@@ -1,0 +1,14 @@
+diff -up logwatch-7.3.6/conf/logwatch.conf.pom logwatch-7.3.6/conf/logwatch.conf
+--- logwatch-7.3.6/conf/logwatch.conf.pom	2009-06-25 10:47:22.000000000 +0200
++++ logwatch-7.3.6/conf/logwatch.conf	2009-06-25 10:47:00.000000000 +0200
+@@ -121,4 +121,10 @@ mailer = "sendmail -t"
+ #
+ #HostLimit = Yes
+ 
++# By default the cron daemon generates daily logwatch report
++# if you want to switch it off uncomment DailyReport tag. 
++# The implicit value is Yes
++#
++# DailyReport = No
++
+ # vi: shiftwidth=3 tabstop=3 et

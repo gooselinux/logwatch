@@ -1,0 +1,37 @@
+diff -up logwatch-7.3.6/scripts/services/openvpn.pom logwatch-7.3.6/scripts/services/openvpn
+--- logwatch-7.3.6/scripts/services/openvpn.pom	2008-04-04 12:35:34.000000000 +0200
++++ logwatch-7.3.6/scripts/services/openvpn	2008-04-04 13:22:18.000000000 +0200
+@@ -51,7 +51,7 @@ while (defined($ThisLine = <STDIN>)) {
+       ($ThisLine =~ /^MULTI: multi_create_instance called/) or
+       ($ThisLine =~ /^MULTI: primary virtual IP for/) or
+       ($ThisLine =~ /^MULTI: TCP INIT maxclients=\d+ maxevents=\d+/) or
+-      ($ThisLine =~ /^MULTI: bad source address from client .*, packet dropped/) or
++      ($ThisLine =~ /MULTI: bad source address from client .*, packet dropped/) or
+       ($ThisLine =~ /^Need IPv6 code in mroute_extract_addr_from_packet/) or
+       ($ThisLine =~ /^NOTE: UID\/GID downgrade will be delayed because of --client, --pull, or --up-delay/) or
+       ($ThisLine =~ /^OPTIONS IMPORT/) or
+@@ -108,6 +108,9 @@ while (defined($ThisLine = <STDIN>)) {
+       $ConnErrors{$error}{"$proto"}++;
+    } elsif (($name) = ($ThisLine =~ /MULTI: new connection by client '(.*)' will cause previous active sessions by this client to be dropped.  Remember to use the --duplicate-cn option if you want multiple clients using the same certificate or username to concurrently connect./)) {
+       $ConnectCauseDrop{$name}++;
++   } elsif ((($Err) = ($ThisLine =~ /(read UDPv4 \[ECONNREFUSED\]: Connection refused \(code=111\))/)) or
++	    (($Err) = ($ThisLine =~ /(read UDPv4 \[EHOSTUNREACH\]: No route to host \(code=113\))/))) {
++      $Error{$Err}++;
+   } else {
+       # Report any unmatched entries...
+       # remove PID from named messages
+@@ -199,6 +202,14 @@ if (keys %ConnectCauseDrop) {
+    }
+ }
+ 
++if (keys %Error) {
++   print "\n UDPv4 errors:\n";
++   foreach $Err (sort keys %Error) {
++     print "   " . $Err . ": " .$Error{$Err}. " Time(s)\n";
++   }
++}
++
++
+ if (keys %OtherList) {
+    print "\n**Unmatched Entries**\n";
+    foreach $line (sort {$a cmp $b} keys %OtherList) {

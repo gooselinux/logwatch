@@ -1,0 +1,11 @@
+diff -up logwatch-7.3.6/scripts/services/amavis.pom logwatch-7.3.6/scripts/services/amavis
+--- logwatch-7.3.6/scripts/services/amavis.pom	2007-05-16 06:27:17.000000000 +0200
++++ logwatch-7.3.6/scripts/services/amavis	2008-01-08 10:02:00.000000000 +0100
+@@ -524,6 +524,7 @@ while (<>) {
+         or ($p1 =~ /email.txt no longer exists, can't re-use it/)
+         or ($p1 =~ /SPAM\.TAG2/)
+         or ($p1 =~ /BAD-HEADER\.TAG2/)
++        or ($p1 =~ /skip local delivery\([0-9]\): <> -> <(spam|bad-header)-quarantine>*/)
+    );
+ 
+    my ($ip, $from, $to, $key, $hits, $reason, $item, $decoder);

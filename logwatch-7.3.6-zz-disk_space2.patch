@@ -1,0 +1,13 @@
+diff -up logwatch-7.3.6/scripts/services/zz-disk_space.pom logwatch-7.3.6/scripts/services/zz-disk_space
+--- logwatch-7.3.6/scripts/services/zz-disk_space.pom	2008-11-13 12:42:45.000000000 +0100
++++ logwatch-7.3.6/scripts/services/zz-disk_space	2008-12-08 13:23:28.000000000 +0100
+@@ -169,7 +169,8 @@ sub DiskFull
+      my @fields = split(' ', $row);
+      my $use = $fields[4];
+      $use =~ s/%//;
+-     if (($use > $diskfull_threshhold) && ($fields[0] !~ /\/dev\/scd/ ) && ($fields[0] !~ /\/dev\/sr/ ))
++     if (($use > $diskfull_threshhold) && ($fields[0] !~ /\/dev\/scd/ ) && ($fields[0] !~ /\/dev\/sr/ )
++        && ($fields[0] !~ /\/dev\/loop./))
+      {
+        print "$fields[0] => $fields[4] Used. Warning. Disk Filling up.\n";
+      }

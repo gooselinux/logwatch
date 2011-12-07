@@ -1,0 +1,13 @@
+diff -up logwatch-7.3.6/scripts/services/openvpn.pom logwatch-7.3.6/scripts/services/openvpn
+--- logwatch-7.3.6/scripts/services/openvpn.pom	2008-12-16 15:52:59.000000000 +0100
++++ logwatch-7.3.6/scripts/services/openvpn	2008-12-17 12:37:48.000000000 +0100
+@@ -80,7 +80,8 @@ while (defined($ThisLine = <STDIN>)) {
+       ($ThisLine =~ /^chroot to /) or
+       ($ThisLine =~ /TUN\/TAP TX queue length set to [0-9]*/) or
+       ($ThisLine =~ /Socket Buffers: R=\[[0-9]+->[0-9]+\] S=\[[0-9]+->[0-9]+\]/) or
+-      ($ThisLine =~ /OpenVPN .* built on [A-Z][a-z]{2} [ 12]?[0-9] [0-9]{4}/)
++      ($ThisLine =~ /OpenVPN .* built on [A-Z][a-z]{2} [ 12]?[0-9] [0-9]{4}/) or
++      ($ThisLine =~ /Authenticate\/Decrypt packet error: bad packet ID \(may be a replay\): \[ #.* \] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings/)
+    ) {
+       # Don't care about these...
+    }  elsif (($status, $dn) = ( $ThisLine =~ /^VERIFY (.*): depth=.*, (.*)\// )) {

@@ -1,0 +1,98 @@
+diff -up logwatch-7.3.6/scripts/services/pam_unix.pom logwatch-7.3.6/scripts/services/pam_unix
+--- logwatch-7.3.6/scripts/services/pam_unix.pom	2006-12-20 16:46:45.000000000 +0100
++++ logwatch-7.3.6/scripts/services/pam_unix	2008-11-11 11:12:35.000000000 +0100
+@@ -121,7 +121,8 @@ while ($line = <STDIN>) {
+ 	}
+    #lowercase the service 
+    $service = lc($service); 
+-	if (($service eq 'sshd') or ($service eq 'login') or ($service eq 'ftp') or ($service eq 'rsh')) {
++	if (($service eq 'sshd') or ($service eq 'login') or ($service eq 'ftp') or ($service eq 'rsh') or 
++	    ($service eq 'remote') or ($service eq 'rlogin')) {
+ 		if ($line =~ s/^session opened for user (.+) by \(uid=\d+\)/$1/) {
+ 			($Detail >= 5) && $data{$service}{'Sessions Opened'}{$line}++;
+       } elsif ($line =~ s/^session opened for user ([^ ]*) by ([^ ]*)\(uid=\d+\)/$1 by $2/) {
+@@ -148,6 +149,8 @@ while ($line = <STDIN>) {
+          $data{$service}{'Expired Accounts'}{$line}++;
+       } elsif ($line =~ s/bad username \[(.*)\]/$1/) {
+          $data{$service}{'Invalid Users'}{"Bad User: $line"}++;
++      } elsif ($line =~ s/auth could not identify password for \[(.*)\]/$1/) {
++         $data{$service}{'Not Identify Password For'}{$line}++;
+       } else {
+          $data{$service}{'Unknown Entries'}{$line}++;
+       }
+@@ -178,12 +181,16 @@ while ($line = <STDIN>) {
+    } elsif ($service eq 'gdm') {
+       if ($line =~ s/^session opened for user (.+) by \(uid=\d+\)/$1/) {
+          ($Detail >= 5) && $data{$service}{'Sessions Opened'}{$line}++;
++      } elsif ($line =~ s/auth could not identify password for \[(.*)\]/$1/) {
++          $data{$service}{'Not Identify Password For'}{$line}++;       
+       } elsif ($line =~ s/^authentication failure; logname=.*user=(.+)$/$1/) {
+          $data{$service}{'Authentication Failures'}{$line}++;
+       } elsif ($line =~ /session closed for user/) {
+          # ignore this line
+       } elsif ($line =~ /bad username \[\]/) {
+          # ignore this line
++      } elsif ($line =~ /conversation failed/) {
++         # ignore this line
+       } else {
+          $data{$service}{'Unknown Entries'}{$line}++;
+       }
+@@ -196,7 +203,7 @@ while ($line = <STDIN>) {
+        $data{$service}{'Authentication Failures'}{$line}++;
+      }
+      
+- } elsif ($service eq 'xdm') {
++   } elsif ($service eq 'xdm') {
+ 	 if ($line =~ s/^session opened for user (.+) by \(uid=\d+\)/$1/) {
+ 		 ($Detail >= 5) && $data{$service}{'Sessions Opened'}{$line}++;
+ 	 } elsif ($line =~ /session closed for user/) {
+@@ -249,7 +256,7 @@ while ($line = <STDIN>) {
+ 		   ($Detail >= 5) && $data{$service}{'Sessions Opened'}{$line}++;
+ 	   } elsif ($line =~ /session closed for user/) {
+ 		   # ignore this line
+-	   } elsif ($line =~ /^account root has password changed in future/) {
++	   } elsif ($line =~ /account (.+) has password changed in future/) {
+ 	          #I'm not sure whether this info could not be reported
+ 	   } else {
+ 		   $data{$service}{'Unknown Entries'}{$line}++;
+@@ -270,7 +277,7 @@ while ($line = <STDIN>) {
+       } else {
+          $data{$service}{'Unknown Entries'}{$line}++;
+       }
+-   } elsif ($service eq 'runuser') {
++   } elsif (($service eq 'runuser') or ($service eq 'runuser-l')){
+      if ($line =~/^session (opened)?(\/)?(closed)? for user [a-zA-Z\d]+/) {
+      } else {
+          $data{$service}{'Unknown Entries'}{$line}++;
+@@ -287,9 +294,28 @@ while ($line = <STDIN>) {
+          $data{$service}{'Not Identify Password For'}{$line}++;
+      } else {
+          $data{$service}{'Unknown Entries'}{$line}++;
+-     }
+-   } else {      
+-      $data{$service}{'Unknown Entries'}{$line}++;
++     }          
++   } elsif ($service eq 'polkit') {
++      if ($line =~ s/auth could not identify password for \[(.*)\]/$1/) {
++         $data{$service}{'Not Identify Password For'}{$line}++;
++      } elsif ($line =~ s/^authentication failure; logname=(\S*) uid=(\d+) .*user=(\S*)$/$1($2) -> $3/) {
++         $data{$service}{'Authentication Failures'}{$line}++;
++      } elsif ($line =~ /conversation failed/) {
++               # ignore this line
++      } else {
++           $data{$service}{'Unknown Entries'}{$line}++;
++      }
++   } elsif ($service eq 'virt-manager') {
++      if ($line =~ s/auth could not identify password for \[(.*)\]/$1/) {
++         $data{$service}{'Not Identify Password For'}{$line}++;
++      } elsif ($line =~ /conversation failed/) {
++               # ignore this line
++      } else {
++           $data{$service}{'Unknown Entries'}{$line}++;
++      }
++
++   } else {
++         $data{$service}{'Unknown Entries'}{$line}++;
+    }
+ }
+ 

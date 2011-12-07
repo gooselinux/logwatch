@@ -1,0 +1,28 @@
+--- logwatch-7.3.6/scripts/services/cron.pom	2007-08-09 15:36:39.000000000 +0200
++++ logwatch-7.3.6/scripts/services/cron	2007-08-09 15:35:34.000000000 +0200
+@@ -203,6 +203,10 @@ while (defined($ThisLine = <STDIN>)) {
+       (($Error) = ($ThisLine =~ /(cannot exec process.*)/)) 
+       )  ) {
+       $INCRONDErr{$Error}++;
++   } elsif ( ($ThisLine =~ /crond/) &&
++	(($Error) = ($ThisLine =~ /(failed to open PAM security session: (Permission denied|Module is unknown))/)) 
++	) {
++      $CRONDErr{$Error}++;
+    } else {
+       # Report any unmatched entries...
+       push @OtherList, "$ThisLine\n";
+@@ -328,6 +332,14 @@ if ((%INCRONDSTDe) || (%INCRONDUTDe)) {
+   }
+ }
+ 
++if (%CRONDErr) {
++  printf "\n  crond daemon errors \n";
++  for $key (keys %CRONDErr) {
++    print "    " . $key . ": " . $CRONDErr{$key} . " time(s)\n";
++  }
++}
++          
++
+ if (%INCRONDErr) {
+   printf "\n  incrond daemon errors \n";
+   for $key (keys %INCRONDErr) {

@@ -1,0 +1,95 @@
+diff -up logwatch-7.3.6/scripts/services/postfix.pom logwatch-7.3.6/scripts/services/postfix
+--- logwatch-7.3.6/scripts/services/postfix.pom	2007-05-14 19:27:27.000000000 +0200
++++ logwatch-7.3.6/scripts/services/postfix	2008-10-29 13:37:05.000000000 +0100
+@@ -693,7 +693,7 @@ while ( <> ) {
+ 
+    my ($helo, $relay, $from, $origto, $to, $domain, $status,
+        $type, $reason, $reason2, $filter, $site, $cmd, $qid, $p2,
+-       $rej_action, $host, $hostip);
++       $rej_action, $host, $hostip, $size);
+ 
+    # ^fatal: ...
+    if ( ($reason) = ($p1 =~ /^fatal: (.*)$/ )) {
+@@ -769,8 +769,9 @@ while ( <> ) {
+       #TD disconnect from mail.example.com[2001:dead:beef::1]
+       $Totals{'Disconnection'}++;
+    }
+-   elsif (($host,$hostip,$reason) = ($p1 =~ /^connect to ([^[]*)\[($re_IP)\]: (.*)$/o)) {
++   elsif (($host,$hostip,$reason) = ($p1 =~ /^connect to ([^[]*)\[($re_IP)\]:?[0-9]*: (.*)$/o)) {
+       # all "connect to" messages indicate a problem with the connection
++      #TD connect to mail.bues.ru[82.146.62.193]:25: Connection refused
+       #TD connect to example.org[10.0.0.1]: Connection refused (port 25)
+       #TD connect to mail.sample.com[10.0.0.1]: No route to host (port 25)
+       #TD connect to sample.net[192.168.0.1]: read timeout (port 25)
+@@ -1521,6 +1522,11 @@ while ( <> ) {
+          $Totals{'RejectMilter'}++;
+          #$Counts{'RejectMilter'}{$cmd}{formathost($hostip,$host)}{$reason}{$p3}++;
+          $Counts{'RejectMilter'}{$cmd}{formathost($hostip,$host)}{$reason}++;
++         
++      } elsif ( ($host,$hostip,$reason) = ($p1 =~ /host ([^ ]*)\[([^ ]*)\] refused to talk to me: [0-9]* .*: Connection refused. (.*)/)) {    
++       # TD  host mx10.hanmail.net[211.43.197.142] refused to talk to me: 554 5.7.1 CCRX 80.95.96.6: Connection refused. Your IP address is blocked(anti-spam)
++        $Totals{'ConnectToFailure'}++;  
++        $Counts{'ConnectToFailure'}{$reason}{formathost($hostip,$host)}++;  
+ 
+       } else {
+          # keep this as the last condition in this else clause
+@@ -1530,8 +1536,9 @@ while ( <> ) {
+    # end of $re_QID section
+ 
+    # see also ConnectionLost in $re_QID section
+-   elsif ( ($reason,$host,$hostip) = ($p1 =~ /lost connection (after [^ ]*) from ([^[]*)\[($re_IP|unknown)\]$/o )) {
++   elsif ( ($reason,$host,$hostip) = ($p1 =~ /lost connection (after [^ ]*) (\(\d+ bytes\) )?from ([^[]*)\[($re_IP|unknown)\]$/o )) {
+       unless ($hostip =~ /unknown/) {
++         #TD lost connection after DATA (0 bytes) from mail.example.com[192.168.0.1]    
+          #TD lost connection after CONNECT from mail.example.com[192.168.0.1] 
+          $Totals{'ConnectionLost'}++;
+          $Counts{'ConnectionLost'}{"\u$reason"}{formathost($hostip,$host)}++;
+@@ -1570,7 +1577,8 @@ while ( <> ) {
+    }
+ 
+    # see also TimeoutInbound in $re_QID section
+-   elsif ( ($reason,$host,$hostip) = ($p1 =~ /^timeout (after [^ ]*) from ([^[]*)\[($re_IP)\]$/o)) {
++   elsif ( ($reason,$host,$hostip) = ($p1 =~ /^timeout (after [^ ]*) (\(\d+ bytes\) )?from ([^[]*)\[($re_IP)\]$/o)) {
++      #TD timeout after DATA (0 bytes) from unknown[85.102.182.31]
+       #TD timeout after RSET from example.com[192.168.0.1]
+       $Totals{'TimeoutInbound'}++;
+       $Counts{'TimeoutInbound'}{"\u$reason"}{formathost($hostip,$host)}++;
+@@ -1593,7 +1601,8 @@ while ( <> ) {
+ 
+    ### smtpd_tls_loglevel >= 1
+    # Server TLS messages
+-   elsif ( ($status,$host,$hostip,$type) = ($p1 =~ /^(?:(Trusted|Untrusted) )?TLS connection established from ([^[]+)\[($re_IP)\]: (.*)$/o )) {
++   elsif ( ($status,$host,$hostip,$type) = ($p1 =~ /^(?:(Trusted|Untrusted|Anonymous) )?TLS connection established from ([^[]+)\[($re_IP)\]: (.*)$/o )) {
++      #DT Anonymous TLS connection established from fractal.kaosol.net[216.150.215.72]: TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits)
+       #TD TLS connection established from example.com[192.168.0.1]: TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits) 
+       # Postfix 2.5+: status: Untrusted or Trusted
+       #TD Untrusted TLS connection established from example.com[192.168.0.1]: TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits) 
+@@ -1625,12 +1634,18 @@ while ( <> ) {
+       $Totals{'TlsUnverified'}++;
+       $Counts{'TlsUnverified'}{$cert}++; 
+ 
++   } elsif ( ($cert) = ($p1 =~ /: Untrusted: (subject_CN=.*)/)) {
++      #TD Untrusted: subject_CN=EXAMPLE-MAIL, issuer=EXAMPLE-MAIL,
++      $Totals{'TlsUnverified'}++;
++      $Counts{'TlsUnverified'}{$cert}++; 
++
+    } elsif ( ($p1 =~ m/(lookup )?table ([^ ]+ )?has changed -- (restarting|exiting)$/)) {
+       #TD table hash:/etc/postfix/helo_checks has changed -- restarting
+       $Totals{'TableChanged'}++;
+ 
+-   } elsif ( ($cmd,$host,$hostip) = ($p1 =~ /too many errors after ([^ ]*) from ([^[]*)\[($re_IP)\]$/o)) {
++   } elsif ( ($cmd,$size,$host,$hostip) = ($p1 =~ /too many errors after ([^ ]*) (\(\d+ bytes\) )?from ([^[]*)\[($re_IP)\]$/o)) {
+       #TD too many errors after AUTH from sample.net[10.0.0.1] 
++      #TD too many errors after DATA (0 bytes) from aasq46.neoplus.adsl.tpnet.pl[83.5.228.46]
+       $Totals{'TooManyErrors'}++;
+       $Counts{'TooManyErrors'}{"After $cmd"}{formathost($hostip,$host)}++;
+ 
+@@ -2163,7 +2178,7 @@ sub cleanhostreply($ $ $ $) {
+    #print "HOSTREPLY: \"$hostreply\"\n";
+    if (($host,$r1) = ($hostreply =~ /host (\S+) said: $re_DSN[\- ]"?(.*)"?$/o)) {
+       # Strip recipient address from host's reply - we already have it in $recip.
+-      $r1 =~ s/[<(]?$recip[>)]?\W*//ig;
++      $r1 =~ s/[<(]?\Q$recip\E[>)]?\W*//ig;
+ 
+       # Strip and capture "in reply to XYZ command" from host's reply
+       if ($r1 =~ s/\s*[(]?(in reply to .* command)[)]?//) {

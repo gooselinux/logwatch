@@ -1,0 +1,48 @@
+--- logwatch-7.3.6/scripts/services/named.pom	2007-07-04 12:58:44.000000000 +0200
++++ logwatch-7.3.6/scripts/services/named	2007-07-04 14:16:20.000000000 +0200
+@@ -172,7 +172,16 @@ while (defined($ThisLine = <STDIN>)) {
+       ($ThisLine =~ /weak RSASHA1 \(5\) key found \(exponent=3\)/) or 
+       ($ThisLine =~ /Bad file descriptor/) or 
+       ($ThisLine =~ /open: .*: file not found/) or
+-      ($ThisLine =~ /queries: client [0-9.#:]* view localhost_resolver: query: .* IN .*/)
++      ($ThisLine =~ /queries: client [0-9.#:]* view localhost_resolver: query: .* IN .*/) or
++      ($ThisLine =~ /zone .*: NS '.*' is a CNAME \(illegal\)/) or
++      ($ThisLine =~ /zone .*: zone serial unchanged. zone may fail to transfer to slaves/) or
++      ($ThisLine =~ /zone .*: loading from master file .* failed/) or
++      ($ThisLine =~ /zone .*: NS '.*' has no address records/) or
++      ($ThisLine =~ /.*: not a valid number$/) or
++      ($ThisLine =~ /.*: unexpected end of input/) or
++      ($ThisLine =~ /too many timeouts resolving '.*' .*: disabling EDNS/) or
++      ($ThisLine =~ /reloading zones succeeded/)
++      # too many timeouts resolving 'ns-ext.nrt1.isc.org/AAAA' (in '.'?): disabling EDNS: 3 Time(s)
+    ) {
+       # Don't care about these...
+    } elsif (
+@@ -265,6 +274,10 @@ while (defined($ThisLine = <STDIN>)) {
+    } elsif ( (($Log) = ($ThisLine =~ /(freezing .*zone.*)/)) or
+ 	     (($Log) = ($ThisLine =~ /(thawing .*zone.*)/)) ) {
+       $CCMessages2{$Log}++;
++   } elsif (($CCC) = ($ThisLine =~ /unknown control channel command '(.*)'/)) {
++      $UnknownCCCommands{$CCC}++;
++   } elsif (($CCC) = ($ThisLine =~ /received control channel command '(.*)'/)) {
++      $CCCommands{$CCC}++;
+    } else {
+       # Report any unmatched entries...
+       # remove PID from named messages
+@@ -494,6 +507,16 @@ if ((keys %CCMessages) or (keys %CCMessa
+    }
+ }
+ 
++if ((keys %CCCommands) or (keys %UnknownCCCommands)) {
++   print "\n Received control channel commands\n";
++   foreach $ThisOne (keys %CCCommands) {
++      print "   " . $ThisOne . ": " . $CCCommands{$ThisOne} . " Time(s)\n";
++   }
++   foreach $ThisOne (keys %UnknownCCCommands) {
++      print "   " . $ThisOne . "(unknown command): " . $CCCommands{$ThisOne} . " Time(s)\n";
++   }               
++}
++
+ if (keys %OtherList) {
+    print "\n**Unmatched Entries**\n";
+    foreach $line (sort {$a cmp $b} keys %OtherList) {

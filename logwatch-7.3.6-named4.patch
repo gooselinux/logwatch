@@ -1,0 +1,85 @@
+diff -up logwatch-7.3.6/scripts/services/named.p1 logwatch-7.3.6/scripts/services/named
+--- logwatch-7.3.6/scripts/services/named.p1	2008-12-17 13:13:49.000000000 +0100
++++ logwatch-7.3.6/scripts/services/named	2008-12-17 13:14:59.000000000 +0100
+@@ -137,7 +137,7 @@ while (defined($ThisLine = <STDIN>)) {
+       ($ThisLine =~ /Response from unexpected source/) or
+       ($ThisLine =~ /No root nameservers for class IN/) or
+       ($ThisLine =~ /recvfrom: No route to host/) or
+-      ($ThisLine =~ /Connection refused/) or
++      ($ThisLine =~ /(C|c)onnection refused/) or
+       ($ThisLine =~ /lame server resolving/) or
+       ($ThisLine =~ /transfer of/) or
+       ($ThisLine =~ /using \d+ CPU/) or
+@@ -150,6 +150,8 @@ while (defined($ThisLine = <STDIN>)) {
+       ($ThisLine =~ /the default for the .* option is now/) or
+       ($ThisLine =~ /stopping command channel on \S+/) or
+       ($ThisLine =~ /Malformed response from/) or
++      ($ThisLine =~ /client .* response from Internet for .*/) or
++      ($ThisLine =~ /client .+ query \(cache\) '.*' denied/) or
+       ($ThisLine =~ /client .+#\d+: query:/) or
+       # Do we really want to ignore these?
+       #($ThisLine =~ /unknown logging category/) or
+@@ -180,6 +182,7 @@ while (defined($ThisLine = <STDIN>)) {
+       ($ThisLine =~ /.*: not a valid number$/) or
+       ($ThisLine =~ /.*: unexpected end of input/) or
+       ($ThisLine =~ /too many timeouts resolving '.*' .*: disabling EDNS/) or
++      ($ThisLine =~ /too many timeouts resolving '.*' .*: reducing the advertised EDNS UDP packet size to .* octets/) or
+       ($ThisLine =~ /reloading zones succeeded/)
+       # too many timeouts resolving 'ns-ext.nrt1.isc.org/AAAA' (in '.'?): disabling EDNS: 3 Time(s)
+    ) {
+@@ -220,6 +223,8 @@ while (defined($ThisLine = <STDIN>)) {
+       $ZoneRemoved{$Zone}++;
+    } elsif ( ($Zone) = ( $ThisLine =~ /received notify for zone '(.*)'/ ) ) {
+       $ZoneReceivedNotify{$Zone}++;
++   } elsif ( ($Zone) = ( $ThisLine =~ /zone (.*): notify from .* up to date/ ) ) {
++      $ZoneReceivedNotify{$Zone}++;
+    } elsif ( ($Host) = ( $ThisLine =~ /([^ ]+) has CNAME and other data \(invalid\)/ ) ) {
+       push @CNAMEAndOther, $Host;
+    } elsif ( ($File,$Line,$Entry,$Error) = ( $ThisLine =~ /dns_master_load: ([^:]+):(\d+): ([^ ]+): (.+)$/ ) ) {
+@@ -278,6 +283,10 @@ while (defined($ThisLine = <STDIN>)) {
+       $UnknownCCCommands{$CCC}++;
+    } elsif (($CCC) = ($ThisLine =~ /received control channel command '(.*)'/)) {
+       $CCCommands{$CCC}++;
++   } elsif (($Name,$Address) = ($ThisLine =~ /network unreachable resolving '(.*)': (.*)/)) {
++      $NUR{$Name}{$Address}++;
++   } elsif (($Name,$Address) = ($ThisLine =~ /host unreachable resolving '(.*)': (.*)/)) {
++      $HUR{$Name}{$Address}++;
+    } else {
+       # Report any unmatched entries...
+       # remove PID from named messages
+@@ -418,6 +427,26 @@ if ( ( $Detail >= 10 ) and (keys %Networ
+    }
+ }
+ 
++if ( ( $Detail >= 10 ) and (keys %NUR) ) {
++   print "\nNetwork unreachable resolving for:\n";
++   foreach $ThisOne (sort {$a cmp $b} keys %NUR) {
++      print "   $ThisOne:\n";
++      foreach $Host (sort {$a cmp $b} keys %{$NUR{$ThisOne}}) {
++         print "      $Host: $NUR{$ThisOne}{$Host} Time(s)\n";
++      }
++   }
++}
++
++if ( ( $Detail >= 10 ) and (keys %HUR) ) {
++   print "\nHost unreachable resolving for:\n";
++   foreach $ThisOne (sort {$a cmp $b} keys %HUR) {
++       print "   $ThisOne:\n";
++       foreach $Host (sort {$a cmp $b} keys %{$HUR{$ThisOne}}) {
++          print "      $Host: $HUR{$ThisOne}{$Host} Time(s)\n";
++       }
++   }
++}
++
+ if ( ( $Detail >= 5 ) and (keys %ZoneUpdates) ) {
+    print "\nZone Updates:\n";
+    foreach $ThisOne (sort {$a cmp $b} keys %ZoneUpdates) {
+@@ -508,7 +537,7 @@ if ((keys %CCMessages) or (keys %CCMessa
+ }
+ 
+ if ((keys %CCCommands) or (keys %UnknownCCCommands)) {
+-   print "\n Received control channel commands\n";
++   print "\nReceived control channel commands\n";
+    foreach $ThisOne (keys %CCCommands) {
+       print "   " . $ThisOne . ": " . $CCCommands{$ThisOne} . " Time(s)\n";
+    }

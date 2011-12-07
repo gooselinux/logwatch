@@ -1,0 +1,12 @@
+--- logwatch-7.3.6/scripts/services/secure.pom	2007-04-29 01:56:32.000000000 +0200
++++ logwatch-7.3.6/scripts/services/secure	2007-06-04 13:38:42.000000000 +0200
+@@ -212,7 +212,8 @@
+       ( $ThisLine =~ /PAM pam_get_item: nowhere to place requested item/) or
+       ( $ThisLine =~ /pam_succeed_if\(.*:.*\): error retrieving information about user [a-zA-Z]*/ ) or
+       ( $ThisLine =~ /logfile turned over/) or # newsyslog on OpenBSD
+-      ( $ThisLine =~ /Connection closed by/)
++      ( $ThisLine =~ /Connection closed by/) or
++      ( $ThisLine =~ /sshd.*: Accepted \S+ for \S+ from [\d\.:a-f]+ port \d+/) # ssh script reads this log 
+    ) {
+       # Ignore these entries
+    } elsif ($ThisLine =~ /^spop3d/ || $ThisLine =~ /^pop\(\w+\)\[\d+\]:/) {

@@ -1,0 +1,13 @@
+diff -up logwatch-7.3.6/scripts/services/sshd.ppp logwatch-7.3.6/scripts/services/sshd
+--- logwatch-7.3.6/scripts/services/sshd.ppp	2009-03-16 08:50:53.000000000 +0100
++++ logwatch-7.3.6/scripts/services/sshd	2009-03-30 15:42:46.000000000 +0200
+@@ -306,7 +306,8 @@ while (defined(my $ThisLine = <STDIN>)) 
+       $BadLogins{$Host}{"$User/$Method"}++;
+    } elsif ($ThisLine =~ s/^(log: )?Could not reverse map address ([^ ]*).*$/$2/) {
+       $NoRevMap{$ThisLine}++;
+-   } elsif ( my ($Address) = ($ThisLine =~ /^reverse mapping checking getaddrinfo for ([^ ]*) failed - POSSIBLE BREAKIN ATTEMPT!/)) {
++   } elsif ( my ($Address) = ($ThisLine =~ /^reverse mapping checking getaddrinfo for ([^ ]*) failed - POSSIBLE BREAK-?IN ATTEMPT!/)) {
++
+       $NoRevMap{$Address}++;
+    } elsif ( my ($IP,$Address) = ($ThisLine =~ /^Address ([^ ]*) maps to ([^ ]*), but this does not map back to the address - POSSIBLE BREAKIN ATTEMPT!/)) {
+       $NoRevMap{"$Address($IP)"}++;

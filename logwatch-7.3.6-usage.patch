@@ -1,0 +1,15 @@
+diff -up logwatch-7.3.6/logwatch.8.pom logwatch-7.3.6/logwatch.8
+--- logwatch-7.3.6/logwatch.8.pom	2008-01-08 10:37:13.000000000 +0100
++++ logwatch-7.3.6/logwatch.8	2008-01-08 10:39:46.000000000 +0100
+@@ -104,10 +104,8 @@ Inhibits additional name lookups, displa
+ .IP "\fB--no-oldfiles-log\fR" 
+ Suppress the logwatch log, which informs about the 
+ old files in logwatch tmpdir. 
+-.IP "\fB--usage\fR"
+-Displays usage information
+ .IP "\fB--help\fR"
+-same as --usage.
++Displays usage information.
+ .SH FILES
+ .IP /usr/share/logwatch/
+ .RS

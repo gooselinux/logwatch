@@ -1,0 +1,71 @@
+diff -up logwatch-7.3.6/scripts/logwatch.pl.pom logwatch-7.3.6/scripts/logwatch.pl
+--- logwatch-7.3.6/scripts/logwatch.pl.pom	2008-01-08 10:25:25.000000000 +0100
++++ logwatch-7.3.6/scripts/logwatch.pl	2008-01-08 10:31:24.000000000 +0100
+@@ -113,7 +113,7 @@ sub Usage () {
+       "   [--print] [--mailto <addr>] [--archives] [--range <range>] [--debug <level>]\n" .
+       "   [--save <filename>] [--help] [--version] [--service <name>]\n" .
+       "   [--numeric] [--output <output_type>]\n" .
+-      "   [--splithosts] [--multiemail]\n\n";
++      "   [--splithosts] [--multiemail] [--no-oldfiles-log]\n\n";
+    print "--detail <level>: Report Detail Level - High, Med, Low or any #.\n";
+    print "--logfile <name>: *Name of a logfile definition to report on.\n";
+    print "--logdir <name>: Name of default directory where logs are stored.\n";
+@@ -134,6 +134,8 @@ sub Usage () {
+    print "              not using --splithosts.\n";
+    print "--output <output type>: Report Format - mail, html or unformatted#.\n";
+    print "--encode: Use base64 encoding on output mail.\n";
++   print "--no-oldfiles-log: Suppress the logwatch log, which informs about the\n"; 
++   print "                   old files in logwatch tmpdir.\n"; 
+    print "--version: Displays current version.\n";
+    print "--help: This message.\n";
+    print "* = Switch can be specified multiple times...\n\n";
+@@ -320,6 +322,7 @@ my @TempLogFileList = ();
+ my @TempServiceList = ();
+ my $Help = 0;
+ my $ShowVersion = 0;
++my $NoOldfilesLog = 0;
+ my $tmp_mailto;
+ 
+ GetOptions ( "d|detail=s"   => \$Config{'detail'},
+@@ -340,7 +343,8 @@ GetOptions ( "d|detail=s"   => \$Config{
+              "multiemail"   => \$Config{'multiemail'},
+              "o|output=s"   => \$Config{'output'},
+              "encode"       => \$Config{'encode'},
+-             "html_wrap=s"  => \$Config{'html_wrap'}
++             "html_wrap=s"  => \$Config{'html_wrap'},
++             "no-oldfiles-log" => \$NoOldfilesLog
+            ) or Usage();
+ 
+ $Help and Usage();
+@@ -751,7 +755,7 @@ if ($Config{'debug'} > 7) {
+ opendir(TMPDIR, $Config{'tmpdir'}) or die "$Config{'tmpdir'} $!";
+ my @old_dirs = grep { /^logwatch\.\w{8}$/ && -d "$Config{'tmpdir'}/$_" }
+    readdir(TMPDIR);
+-if (@old_dirs) {
++if ((@old_dirs) && ($NoOldfilesLog==0)) {
+    print "You have old files in your logwatch tmpdir ($Config{'tmpdir'}):\n\t";
+    print join("\n\t", @old_dirs);
+    print "\nThe directories listed above were most likely created by a\n";
+diff -up logwatch-7.3.6/logwatch.8.pom logwatch-7.3.6/logwatch.8
+--- logwatch-7.3.6/logwatch.8.pom	2007-05-19 16:37:42.000000000 +0200
++++ logwatch-7.3.6/logwatch.8	2008-01-08 10:34:32.000000000 +0100
+@@ -25,7 +25,8 @@ logwatch \- system log analyzer and repo
+ .I hostname
+ .B ] [--splithosts] [--multiemail] [--output
+ .I output-type
+-.B ] [--numeric] [--version] [--help|--usage]
++.B ] [--numeric]  [--no-oldfiles-log]
++.B [--version] [--help|--usage]
+ .SH DESCRIPTION
+ .B Logwatch
+ is a customizable, pluggable log-monitoring system.  It will go
+@@ -100,6 +101,9 @@ if HostLimit is set in the logwatch.conf
+ then only logs from this hostname will be processed (where appropriate).
+ .IP "\fB--numeric\fR"
+ Inhibits additional name lookups, displaying IP addresses numerically.
++.IP "\fB--no-oldfiles-log\fR" 
++Suppress the logwatch log, which informs about the 
++old files in logwatch tmpdir. 
+ .IP "\fB--usage\fR"
+ Displays usage information
+ .IP "\fB--help\fR"

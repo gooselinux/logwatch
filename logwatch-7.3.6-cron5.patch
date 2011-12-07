@@ -1,0 +1,57 @@
+diff -up logwatch-7.3.6/scripts/services/cron.pom logwatch-7.3.6/scripts/services/cron
+--- logwatch-7.3.6/scripts/services/cron.pom	2008-06-20 10:42:20.000000000 +0200
++++ logwatch-7.3.6/scripts/services/cron	2008-08-06 12:55:21.000000000 +0200
+@@ -103,7 +103,10 @@ while (defined($ThisLine = <STDIN>)) {
+       ($ThisLine =~ /loading (system|user) tables/) or
+       ($ThisLine =~ /loading table .*/) or 
+       ($ThisLine =~ /void Inotify::Remove\(InotifyWatch\*\): removing watch failed/) or 
+-      ($ThisLine =~ /error: \(22\) Invalid argument/)
++      ($ThisLine =~ /error: \(22\) Invalid argument/) or
++      ($ThisLine =~ /INFO \(running with inotify support\)/) or
++      ($ThisLine =~ /INFO \(\@reboot jobs will be run at computer's startup.\)/)
++      
+    ) {
+       # Ignore
+    } elsif (
+@@ -148,6 +151,12 @@ while (defined($ThisLine = <STDIN>)) {
+          $BFMFile{$FileName}++; 
+       } elsif ( ($FileName) = ($ThisLine =~ /WRONG FILE OWNER \((.+)\)/) ) {
+          $WFO{$FileName}++;
++      } elsif ($ThisLine =~ /FAILED to authorize user with PAM \(User not known to the underlying authentication module\)/) {
++          $PAMAUTHErr++;
++      } elsif ( ($FileName,$Cause) = ($ThisLine =~ /ERROR chdir failed \((.*)\): (.*)/) ) {
++          $CHDIRErr{"$FileName,$Cause"}++;
++      } elsif ($ThisLine =~ /ERROR \(failed to change user\)/) {
++          $CHUSERHErr++;       
+       } else {
+          # Report any unmatched entries...
+          push @OtherList, "$ThisLine\n";
+@@ -352,10 +361,27 @@ if (%INCRONDErr) {
+ if (%SELCONTErr) {
+   printf "\n  SELinux context error \n";
+   for $key (keys %SELCONTErr) {
+-    print "    " . $key . ": " . $SELCONTErr{$key} . "time(s)\n";
++    print "    " . $key . ": " . $SELCONTErr{$key} . " time(s)\n";
+   }
+ }
+ 
++if ($PAMAUTHErr) {
++   printf "\nPAM autentification error: " . $PAMAUTHErr . " time(s)\n";
++}
++
++if (%CHDIRErr) {
++  printf "\nchdir command failed\n";
++  foreach (keys %CHDIRErr) {
++    my ($File,$Cause) = split ",";
++    print "    for directory " . $File . " (" . $Cause . ")". ": " . $CHDIRErr{"$File,$Cause"} . " time(s)\n";
++  }
++}
++
++if ($CHUSERHErr) {
++   printf "\nUser change error: " . $CHUSERHErr . " time(s)\n";
++}
++
++
+ 
+ if ($#OtherList >= 0) {
+    print "\n**Unmatched Entries**\n";

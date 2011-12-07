@@ -1,0 +1,61 @@
+diff -up logwatch-7.3.6/scripts/services/smartd.pom logwatch-7.3.6/scripts/services/smartd
+--- logwatch-7.3.6/scripts/services/smartd.pom	2007-04-09 16:46:46.000000000 +0200
++++ logwatch-7.3.6/scripts/services/smartd	2009-01-06 13:45:00.000000000 +0100
+@@ -8,6 +8,8 @@ use strict;
+ my ($Device, $Msg, $Test);
+ my %ParamChanges = ();
+ my %TempChanges = ();
++my %TempLimit = ();
++my %TempCritLimit = ();
+ my %Pendsectors = ();
+ my %NumPendsectors = ();
+ my %Offsectors = ();
+@@ -94,7 +96,13 @@ while (defined(my $ThisLine = <STDIN>)) 
+    # smartd reports temperature changes this way only for SCSI disks
+    } elsif ( my ($Device,$NewVal) = ($ThisLine =~ /^Device: ([^,]+), initial Temperature is (\d+) Celsius/)) {
+       push @{$TempChanges{$Device}},$NewVal;
+-   } elsif ( my ($Device,$NewVal) = ($ThisLine =~ /^Device: ([^,]+), Temperature changed -?\d+ Celsius to (\d+) Celsius/)) {
++   } elsif ( my ($Device,$Limit) = ($ThisLine =~ /^Device: ([^,]+), Temperature \d+ Celsius reached limit of (\d+) Celsius/)) {
++   # Device: /dev/sda, Temperature 37 Celsius reached limit of 10 Celsius (Min/Max 37/37)
++      $TempLimit{"$Device,$Limit"}++;    
++   } elsif ( my ($Device,$Limit) = ($ThisLine =~ /^Device: ([^,]+), Temperature \d+ Celsius reached critical limit of (\d+) Celsius/)) {
++   # Device: /dev/sda, Temperature 38 Celsius reached critical limit of 15 Celsius (Min/Max 38!/39)
++      $TempCritLimit{"$Device,$Limit"}++;    
++   } elsif ( my ($Device,$NewVal) = ($ThisLine =~ /^Device: ([^,]+), Temperature changed [-+]?\d+ Celsius to (\d+) Celsius/)) {
+       push @{$TempChanges{$Device}},$NewVal;
+    } elsif ( my ($Device, $Num) = ($ThisLine =~ /^Device: ([^,]+), (\d+) Currently unreadable \(pending\) sectors/) ) {
+       $Pendsectors{$Device}++;
+@@ -178,14 +186,31 @@ if (keys %TempChanges) {
+                        print "\n";
+                }
+    }
+-       if($Detail < 10) {
++   if($Detail < 10) {
+           my @sorttemp = sort @min;
+                my $mint = $sorttemp[0];
+           my @sorttemp = sort @max;
+                my $maxt = $sorttemp[$#sorttemp];
+           print "All devices: $mint - $maxt\n";
+-       }
++   }
++}
++
++if (keys %TempCritLimit) {
++   printf "\nReached critical temperature limit:\n";
++   foreach (keys %TempCritLimit) {
++      my ($Device,$Limit)=split ",";
++      print "\t" . $Device . ": reached limit of " . $Limit . " Celsius: ". $TempCritLimit{"$Device,$Limit"} .  " Time(s)\n";
++   }
++}
++
++if (keys %TempLimit) {
++   printf "\nReached temperature limit:\n";
++   foreach (keys %TempLimit) {
++      my ($Device,$Limit)=split ",";
++      print "\t" . $Device . ": reached limit of " . $Limit . " Celsius: ". $TempLimit{"$Device,$Limit"} .  " Time(s)\n";
++   } 
+ }
++                       
+ 
+ if (keys %Pendsectors){
+    print "\nCurrently unreadable (pending) sectors detected:\n";

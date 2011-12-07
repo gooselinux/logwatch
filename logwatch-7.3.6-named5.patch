@@ -1,0 +1,19 @@
+diff -up logwatch-7.3.6/scripts/services/named.pom logwatch-7.3.6/scripts/services/named
+--- logwatch-7.3.6/scripts/services/named.pom	2009-08-11 09:42:27.000000000 +0200
++++ logwatch-7.3.6/scripts/services/named	2009-08-11 13:36:47.000000000 +0200
+@@ -183,7 +183,14 @@ while (defined($ThisLine = <STDIN>)) {
+       ($ThisLine =~ /.*: unexpected end of input/) or
+       ($ThisLine =~ /too many timeouts resolving '.*' .*: disabling EDNS/) or
+       ($ThisLine =~ /too many timeouts resolving '.*' .*: reducing the advertised EDNS UDP packet size to .* octets/) or
+-      ($ThisLine =~ /reloading zones succeeded/)
++      ($ThisLine =~ /reloading zones succeeded/) or
++      ($ThisLine =~ /success resolving '.*' \(in '.*'?\) after disabling EDNS/) or
++      ($ThisLine =~ /success resolving '.*' \(in '.*'?\) after reducing the advertised EDNS UDP packet size to 512 octets/) or
++      ($ThisLine =~ /the working directory is not writable/) or
++      ($ThisLine =~ /using default UDP\/IPv[46] port range: \[[0-9]*, [0-9]*\]/) or
++      ($ThisLine =~ /adjusted limit on open files from [0-9]* to [0-9]*/) or
++      ($ThisLine =~ /using up to [0-9]* sockets/) or
++      ($ThisLine =~ /built with/)
+       # too many timeouts resolving 'ns-ext.nrt1.isc.org/AAAA' (in '.'?): disabling EDNS: 3 Time(s)
+    ) {
+       # Don't care about these...

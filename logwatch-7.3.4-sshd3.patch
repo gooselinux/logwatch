@@ -1,0 +1,12 @@
+--- logwatch-7.3.4/scripts/services/sshd.pom	2007-01-29 21:09:17.000000000 +0100
++++ logwatch-7.3.4/scripts/services/sshd	2007-05-07 12:14:01.000000000 +0200
+@@ -223,7 +223,8 @@
+        ($ThisLine =~ /^input_userauth_request: (illegal|invalid) user (.*)$/ ) or
+        ($ThisLine =~ m/^(Illegal|Invalid) user (.*) from ([^ ]+)/ ) or
+        ($ThisLine =~ /pam_krb5: authentication succeeds for `([^ ]*)'/) or
+-       ( $ThisLine =~ /pam_succeed_if\(.*:.*\): error retrieving information about user [a-zA-Z]*/ )           
++       ($ThisLine =~ /pam_succeed_if\(.*:.*\): error retrieving information about user [a-zA-Z]*/ ) or
++       ($ThisLine =~ /^debug1: /)
+    ) {
+       # Ignore these
+    } elsif ( my ($Method,$User,$Host,$Port) = ($ThisLine =~ /^Accepted (\S+) for (\S+) from ([\d\.:a-f]+) port (\d+)/) ) {

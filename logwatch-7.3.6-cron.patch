@@ -1,0 +1,98 @@
+--- logwatch-7.3.6/scripts/services/cron.pom	2007-02-16 04:13:51.000000000 +0100
++++ logwatch-7.3.6/scripts/services/cron	2007-08-09 14:35:43.000000000 +0200
+@@ -98,7 +98,12 @@ while (defined($ThisLine = <STDIN>)) {
+       ($ThisLine =~ /INFO \(Running \@(re)?boot jobs\)/) or
+       ($ThisLine =~ /INFO \(Skipping \@(re)?boot jobs -- not system startup\)/) or
+       ($ThisLine =~ /INFO \(not boot nor reboot\)/) or
+-      ($ThisLine =~ /logfile turned over/) # newsyslog on OpenBSD
++      ($ThisLine =~ /logfile turned over/) or
++      ($ThisLine =~ /ready to process filesystem events/) or # newsyslog on OpenBSD
++      ($ThisLine =~ /loading (system|user) tables/) or
++      ($ThisLine =~ /loading table .*/) or 
++      ($ThisLine =~ /void Inotify::Remove\(InotifyWatch\*\): removing watch failed/) or 
++      ($ThisLine =~ /error: \(22\) Invalid argument/)
+    ) {
+       # Ignore
+    } elsif (
+@@ -175,6 +180,29 @@ while (defined($ThisLine = <STDIN>)) {
+ 	  if ( $ntpdatemaxoffset < $offset ) { $ntpdatemaxoffset = $offset; }
+    } elsif ($ThisLine =~ /ntpdate\[\d+\]: no server suitable for synchronization found/) {
+      $ntpdatenosync++;
++   } elsif (($ThisLine =~ /incrond/) && ($ThisLine =~ /starting service/)) {
++      $INCRONDSS++;
++   } elsif (($ThisLine =~ /incrond/) && ($ThisLine =~ /stopping service/)) {
++      $INCRONDStS++;
++   } elsif (($ThisLine =~ /incrond/) && (($Table) = ($ThisLine =~ /system table (.*) created, loading/))) {
++      $INCRONDSTCr{$Table}++;
++   } elsif (($ThisLine =~ /incrond/) && (($User) = ($ThisLine =~ /table for user (.*) created, loading/))) {
++      $INCRONDUTCr{$User}++;
++   } elsif (($ThisLine =~ /incrond/) && (($Table) = ($ThisLine =~ /system table (.*) changed, reloading/))) {
++      $INCRONDSTCh{$Table}++;
++   } elsif (($ThisLine =~ /incrond/) && (($User) = ($ThisLine =~ /table for user (.*) changed, reloading/))) {
++      $INCRONDUTCh{$User}++;
++   } elsif (($ThisLine =~ /incrond/) && (($Table) = ($ThisLine =~ /system table (.*) destroyed, removing/))) {
++      $INCRONDSTDe{$Table}++;
++   } elsif (($ThisLine =~ /incrond/) && (($User) = ($ThisLine =~ /table for user (.*) destroyed, removing/))) {
++      $INCRONDUTDe{$User}++;
++   } elsif (  ($ThisLine =~ /incrond/) && 
++      ( (($Error) = ($ThisLine =~ /(cannot create watch for (system table|user) .*: \(2\) No such file or directory)/)) ||
++      (($Error) = ($ThisLine =~ /(access denied on (.*) - events will be discarded silently)/)) || 
++      (($Error) = ($ThisLine =~ /(unhandled exception occurred)/)) ||
++      (($Error) = ($ThisLine =~ /(cannot exec process.*)/)) 
++      )  ) {
++      $INCRONDErr{$Error}++;
+    } else {
+       # Report any unmatched entries...
+       push @OtherList, "$ThisLine\n";
+@@ -262,6 +290,51 @@ if($ntpdatenosync) {
+    print "\nNtpDate could not sync: $ntpdatenosync times\n";
+ }
+ 
++if ($INCRONDSS) {
++  printf "\n  service incrond started " . $INCRONDSS . ": time(s)\n";
++}  
++
++if ($INCRONDStS) {
++  printf "\n  service incrond stoped " . $INCRONDStS . ": time(s)\n";
++}
++
++if ((%INCRONDSTCr) || (%INCRONDUTCr)) {
++  printf "\n  created tables \n";
++  for $key (keys %INCRONDSTCr) {
++    print "    system table " . $key . " created " . $INCRONDSTCr{$key} . ": time(s)\n";
++  }
++  for $key (keys %INCRONDUTCr) {
++    print "    table for user " . $key . " ceated " . $INCRONDUTCr{$key}. ": time(s)\n";
++  }
++}
++
++if ((%INCRONDSTCh) || (%INCRONDUTCh)) {
++  printf "\n  changes of tables \n";
++  for $key (keys %INCRONDSTCh) {
++    print "    system table " . $key . " changed " . $INCRONDSTCh{$key} . ": time(s)\n";
++  }
++  for $key (keys %INCRONDUTCh) {
++    print "    table for user " . $key . "changed " . $INCRONDUTCh{$key} . ": time(s)\n";
++  }
++}
++          
++if ((%INCRONDSTDe) || (%INCRONDUTDe)) {
++  printf "\n  destroyed tables \n";
++  for $key (keys %INCRONDSTDe) {
++     print "    system table " . $key . " destroyed " . $INCRONDSTDe{$key} . ": time(s)\n";
++  }
++  for $key (keys %INCRONDUTDe) {
++     print "    table for user ". $key ." destroyed " .$INCRONDUTDe{$key} . ": time(s)\n";
++  }
++}
++
++if (%INCRONDErr) {
++  printf "\n  incrond daemon errors \n";
++  for $key (keys %INCRONDErr) {
++    print "    " . $key . ": " . $INCRONDErr{$key} . " time(s)\n";
++  }
++}
++
+ if ($#OtherList >= 0) {
+    print "\n**Unmatched Entries**\n";
+    print @OtherList;

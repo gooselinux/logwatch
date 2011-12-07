@@ -1,0 +1,72 @@
+diff -up logwatch-7.3.6/scripts/services/dovecot.pom logwatch-7.3.6/scripts/services/dovecot
+--- logwatch-7.3.6/scripts/services/dovecot.pom	2008-12-16 15:52:59.000000000 +0100
++++ logwatch-7.3.6/scripts/services/dovecot	2008-12-17 09:35:09.000000000 +0100
+@@ -105,8 +105,10 @@ while (defined($ThisLine = <STDIN>)) {
+       $Disconnected{$Reason}++;
+    } elsif (($Reason, $Host) = ($ThisLine =~ /TLS initialization failed/) ) {
+       $TLSInitFail++;
+-   } elsif (($Host) = ($ThisLine =~ /Aborted login \[(.*)\]/) ) {
++   } elsif (($Host) = ($ThisLine =~ /Aborted login \[(.*)\]/)) {
+       $Aborted{$Host}++;
++   } elsif (($Reason) = ($ThisLine =~ /Aborted login \((.*)\):/)) {
++      $Aborted{$Reason}++;
+ 
+ # This is for Dovecot 1.0 series
+ 
+@@ -114,17 +116,25 @@ while (defined($ThisLine = <STDIN>)) {
+       $Disconnected{"Inactivity"}++;
+    } elsif ($ThisLine =~ /Disconnected in IDLE/) {
+       $Disconnected{"in IDLE"}++;
+-   } elsif ($ThisLine =~ /Disconnected$/) {
++   } elsif (($ThisLine =~ /Disconnected$/) or
++            (($Reason) = ($ThisLine =~ /pop3-login: Disconnected: (.+)/)) or     
++            (($Reason) = ($ThisLine =~ /imap-login: Disconnected: (.+)/)) ) {
+       $Disconnected{"no reason"}++;
+-   } elsif (($Reason) = ($ThisLine =~ /pop3-login: Disconnected: (.+)/) ) {
+-      $Disconnected{"no reason"}++;
+-   } elsif (($Reason) = ($ThisLine =~ /imap-login: Disconnected: (.+)/) ) {
+-      $Disconnected{"no reason"}++;
+-   } elsif (($Reason) = ($ThisLine =~ /IMAP.+: Disconnected: (.+)/) ) {
+-      $Disconnected{$Reason}++;
+-   } elsif (($Reason) = ($ThisLine =~ /POP3.+: Disconnected: (.+) top/) ) {
++   } elsif ( (($Reason) = ($ThisLine =~ /POP3.+: Disconnected: (.+) top/)) or 
++	      (($Reason) = ($ThisLine =~ /pop3-login: Disconnected \((.+)\): /)) or 
++	      (($Reason) = ($ThisLine =~ /IMAP.+: Disconnected: (.+) bytes=/)) or
++	      (($Reason) = ($ThisLine =~ /IMAP.+: Disconnected: (.+)/)) ) {
+       $Disconnected{$Reason}++;
+-
++   } elsif (($Reason) = ($ThisLine =~ /IMAP.+: Connection closed bytes=/))  {
++        $ConnectionCl{"no reason"}++;
++   } elsif ( (($Reason) = ($ThisLine =~ /IMAP.+: Connection closed: (.*) bytes=/)) or 
++             (($Reason) = ($ThisLine =~ /POP3.+: Connection closed: (.*) (top=|bytes=)/)) ) {
++      $ConnectionCl{$Reason}++;
++   } elsif ($ThisLine =~ /POP3.+: Connection closed top=.* retr=.* del=.* size=.*/) {
++      $ConnectionCl{"no reason"}++;
++   } elsif (($Error) = ($ThisLine =~ /child \d* \(login\) returned error (.*)/)) {      
++   # dovecot: child 23747 (login) returned error 89
++      $ChildErr{$Error}++;
+    } else {
+       # Report any unmatched entries...
+       chomp($ThisLine);
+@@ -225,6 +235,21 @@ if (keys %Disconnected) {
+    }
+ }
+ 
++if (keys %ConnectionCl) {
++   print "\n\nDovecot connections closed:";
++   foreach my $Reason (sort keys %ConnectionCl) {
++      print "\n   $Reason: $ConnectionCl{$Reason} Time(s)";
++   }
++}
++
++if (keys %ChildErr) {
++   print "\n\nDovecot child error:";
++   foreach my $Error (sort keys %ChildErr) {
++      print "\n   error number ". $Error . ": ". $ChildErr{$Error} ." Time(s)";
++   }
++}
++                          
++
+ if ((keys %Aborted) && ($Detail >= 10)) {
+    print "\n\nLogout/aborts:";
+    foreach my $Host (sort keys %Aborted) {

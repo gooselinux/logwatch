@@ -1,0 +1,15 @@
+diff -up logwatch-7.3.6/scripts/services/exim.pom logwatch-7.3.6/scripts/services/exim
+--- logwatch-7.3.6/scripts/services/exim.pom	2009-03-30 15:49:39.000000000 +0200
++++ logwatch-7.3.6/scripts/services/exim	2009-03-31 08:48:45.000000000 +0200
+@@ -240,9 +240,9 @@ while (defined($ThisLine = <STDIN>)) {
+       $Lookup++;
+       @LookupH = (@LookupH, $ThisLine);
+    }
+-   elsif ( $ThisLine =~ /^\d+\-\d+\-\d+\s\d+\:\d+\:\d+\s\w+\-\w+\-\w+\s/ ) { # inne wiadomosci przesylane przez EXIMA
++   elsif ( $ThisLine =~ /^\d+\-\d+\-\d+\s\d+\:\d+\:\d+\s(\+\d+\s)?\w+\-\w+\-\w+\s/ ) { # inne wiadomosci przesylane przez EXIMA
+     # Collect Message ID specific notes...
+-    ($mdate,$mtime,$mid,$mrest) = ($ThisLine =~ /^(\d+\-\d+\-\d+)\s(\d+\:\d+\:\d+)\s(\w+\-\w+\-\w+)(.+)/);
++    ($mdate,$mtime,$tz,$mid,$mrest) = ($ThisLine =~ /^(\d+\-\d+\-\d+)\s(\d+\:\d+\:\d+)\s(\+\d+\s)?(\w+\-\w+\-\w+)(.+)/);
+       # Count of individual Message Lines, used for sort
+     $licze++;         # Dodaje taki licznik aby potem przy wypisaniu posortowac po nim, bo wypisywal nie po kolei
+     $mmsg{$mid}{$licze.$mrest} = "$mdate $mtime";

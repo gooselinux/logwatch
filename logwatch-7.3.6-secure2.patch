@@ -1,0 +1,57 @@
+diff -up logwatch-7.3.6/scripts/services/secure.pom logwatch-7.3.6/scripts/services/secure
+--- logwatch-7.3.6/scripts/services/secure.pom	2008-10-20 13:50:05.000000000 +0200
++++ logwatch-7.3.6/scripts/services/secure	2008-10-21 10:47:07.000000000 +0200
+@@ -196,7 +196,9 @@ while (defined($ThisLine = <STDIN>)) {
+       ( $ThisLine =~ /^su\[\d+\]: [+-] .+/) or
+       ( $ThisLine =~ /^su\[\d+\]: FAILED su for \S+ by \S+/) or #debian: done in pam_unix
+       ( $ThisLine =~ /^login\[\d+\]: ROOT LOGIN  on '\S+'/) or #debian: done in pam_unix (Similar message on other system is reported)
+-      ( $ThisLine =~ /^login\[\d+\]: FAILED LOGIN \(\d+\) on ['`]\S+' FOR `\S+', (Authentication failure|User not known to the underlying authentication module)/) or #debian: done in pam_unix
++      ( $ThisLine =~ /^login\[\d+\]: FAILED LOGIN \(\d+\) on ['`]\S+' FOR `\S+', (Authentication failure|User not known to the underlying authentication module)/) or
++      ( $ThisLine =~ /^login: FAILED LOGIN 2 FROM (.*) FOR .*, (Authentication failure|User not known to the underlying authentication module)/) or 
++      ( $ThisLine =~ /^login: pam_securetty(.*): unexpected response from failed conversation function/) or 
+       ( $ThisLine =~ /^pam_limits\[\d+\]/ ) or
+       ( $ThisLine =~ /^kcheckpass(\[\d+\]|):/ ) or   # done in pam_unix
+       ( $ThisLine =~ /^cyrus\/lmtpd\[\d+\]: [^ ]+ server step [12]/ ) or
+@@ -213,8 +215,15 @@ while (defined($ThisLine = <STDIN>)) {
+       ( $ThisLine =~ /pam_succeed_if\(.*:.*\): error retrieving information about user [a-zA-Z]*/ ) or
+       ( $ThisLine =~ /logfile turned over/) or # newsyslog on OpenBSD
+       ( $ThisLine =~ /Connection closed by/) or
+-      ( $ThisLine =~ /sshd.*: Accepted \S+ for \S+ from [\d\.:a-f]+ port \d+/) or # ssh script reads this log ) 
+-      ( $ThisLine =~ /userhelper.*: running (.*) with context (.*)/)
++      ( $ThisLine =~ /sshd.*: Accepted \S+ for \S+ from [\d\.:a-f]+ port \d+/) or # ssh script reads this log ) or
++      ( $ThisLine =~ /userhelper.*: running (.*) with context (.*)/) or
++      ( $ThisLine =~ /userhelper.*: pam_thinkfinger(.*): conversation failed/) or
++      ( $ThisLine =~ /su: PAM [0-9] more authentication failure; .*/) or 
++      ( $ThisLine =~ /polkit-grant-helper\[\d+\]: granted authorization for [^ ]* to uid [0-9]* \[auth=.*\]/) or
++      ( $ThisLine =~ /polkit-grant-helper\[\d+\]: granted authorization for [^ ]* to session .* \[uid=[0-9]*\]/) or
++      ( $ThisLine =~ /polkit-grant-helper-pam\[\d+\]: pam_thinkfinger\(polkit:auth\): conversation failed/) or
++      ( $ThisLine =~ /gdm-session-worker\[\d+\]: gkr-pam: no password is available for user/) or
++      ( $ThisLine =~ /gdm-session-worker\[\d+\]: pam_namespace\(gdm:session\): Unmount of [^ ]* failed, Device or resource busy/)
+    ) {
+       # Ignore these entries
+    } elsif ($ThisLine =~ /^spop3d/ || $ThisLine =~ /^pop\(\w+\)\[\d+\]:/) {
+@@ -423,6 +432,9 @@ while (defined($ThisLine = <STDIN>)) {
+       $ChangedUID{"$Name,$UID1,$UID2"}++;
+    } elsif (($Module,$Service) = ($ThisLine =~ /Deprecated (pam_[^ ]*) module called from service "([^ ]*)"/)) {
+       $DeprecateModule{"$Module,$Service"}++;
++   } elsif ( ($User) = ($ThisLine =~ /useradd.*failed adding user `(.*)', data deleted/) ) {# failed adding user/)) {# (.*), data deleted/)) { 
++      # useradd: failed adding user `rpcuser', data deleted 
++      $FailedAddUsers{$User}++;
+    } else {
+       # Unmatched entries...
+       $ThisLine =~ s/\[\d+\]:/:/;
+@@ -440,6 +452,14 @@ if ($DeletedUsers) {
+    print "Deleted Users:\n$DeletedUsers\n";
+ }
+ 
++if (keys %FailedAddUsers) {
++   print "Failed adding users:\n";
++   foreach $User (keys %FailedAddUsers) {
++      print "   $User: ". $FailedAddUsers{$User}. " Time(s)\n";
++   }
++   print"\n";
++}    
++
+ if ($NewGroups) {
+    print "New Groups:\n$NewGroups\n";
+ }

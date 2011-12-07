@@ -1,0 +1,12 @@
+--- logwatch-7.3.6/scripts/services/named.pom	2007-06-04 13:46:17.000000000 +0200
++++ logwatch-7.3.6/scripts/services/named	2007-06-04 13:58:11.000000000 +0200
+@@ -171,7 +171,8 @@
+       ($ThisLine =~ /isc_log_open 'named.run' failed: permission denied/) or 
+       ($ThisLine =~ /weak RSASHA1 \(5\) key found \(exponent=3\)/) or 
+       ($ThisLine =~ /Bad file descriptor/) or 
+-      ($ThisLine =~ /open: .*: file not found/)
++      ($ThisLine =~ /open: .*: file not found/) or
++      ($ThisLine =~ /queries: client [0-9.#:]* view localhost_resolver: query: .* IN .*/)
+    ) {
+       # Don't care about these...
+    } elsif (

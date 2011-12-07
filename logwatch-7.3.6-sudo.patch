@@ -1,0 +1,16 @@
+diff -up logwatch-7.3.6/scripts/services/sudo.pom logwatch-7.3.6/scripts/services/sudo
+--- logwatch-7.3.6/scripts/services/sudo.pom	2006-04-13 01:17:09.000000000 +0200
++++ logwatch-7.3.6/scripts/services/sudo	2007-10-12 12:20:43.000000000 +0200
+@@ -31,7 +31,11 @@ my $CmdsThresh = $ENV{'command_run_thres
+ my ($user, $error, $tty, $dir, $euser, $cmd, $args);
+ 
+ while (defined(my $ThisLine = <STDIN>)) {
+-   if ( ($user, $error, $tty, $dir, $euser, $cmd, $args) = $ThisLine =~ m/^\s*(\w+) : (.*; )?TTY=(\S+) ; PWD=(.*?) ; USER=(\S+) ; COMMAND=(\S+)( ?.*)/) {
++   if ($ThisLine =~ /pam_unix\(sudo:auth\): authentication failure; logname=\S* uid=[0-9]* euid=[0-9]* tty=\S* ruser=\S* rhost=\S*  user=\S*/)
++	# this log is parsed in pam_unix section
++   {    
++     # Ignore
++   }elsif ( ($user, $error, $tty, $dir, $euser, $cmd, $args) = $ThisLine =~ m/^\s*(\w+) : (.*; )?TTY=(\S+) ; PWD=(.*?) ; USER=(\S+) ; COMMAND=(\S+)( ?.*)/) {
+       push @{$byUser{$user}{$euser}}, [$error . $cmd,$args, $dir, $tty];
+       $byUserSum{$user}{$euser}{$cmd} += 1;
+    } elsif ( ($user,$euser) = $ThisLine =~ /^\s*(\w+) : no passwd entry for (\w+)\!$/) {

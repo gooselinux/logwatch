@@ -1,0 +1,14 @@
+diff -up logwatch-7.3.6/scripts/services/clamav-milter.pom logwatch-7.3.6/scripts/services/clamav-milter
+--- logwatch-7.3.6/scripts/services/clamav-milter.pom	2006-12-15 05:58:30.000000000 +0100
++++ logwatch-7.3.6/scripts/services/clamav-milter	2007-11-06 15:02:42.000000000 +0100
+@@ -16,7 +16,9 @@ while (defined($ThisLine = <STDIN>)) {
+        ( $ThisLine =~ /^clamav-milter (startup|shutdown) succeeded$/ ) or
+        ( $ThisLine =~ /^Quarantined infected mail as/ ) or 
+        ( $ThisLine =~ /^File quarantined as/ ) or
+-       ( $ThisLine =~ /^ClamAv: mi_stop/ )) {
++       ( $ThisLine =~ /^ClamAv: mi_stop/ ) or
++       ( $ThisLine =~ m#^\/tmp\/clamav-.* .* FOUND# )) {
++       
+        # We do not care about these.
+    } elsif (($ThisLine =~ /clean message from/)) {
+       $CleanMessage++;

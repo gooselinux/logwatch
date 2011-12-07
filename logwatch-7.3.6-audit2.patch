@@ -1,0 +1,30 @@
+diff -up logwatch-7.3.6/scripts/services/audit.pom logwatch-7.3.6/scripts/services/audit
+--- logwatch-7.3.6/scripts/services/audit.pom	2008-03-05 11:18:41.000000000 +0100
++++ logwatch-7.3.6/scripts/services/audit	2008-04-04 11:05:07.000000000 +0200
+@@ -115,6 +115,8 @@ while ($ThisLine = <STDIN>) {
+ 	    $grants{$2.' '.$3.' ('.$1.$4 . ')'}++;
+ 	} elsif ($ThisLine =~ /security_compute_sid:\s*invalid context\s*(\S+)\s*for\s*scontext=(\S+)\s*tcontext=(\S+)\s*tclass=(\S+)/ ) {
+ 	    $InvalidContext{$4." running as ".$2." acting on ".$3." \nshould transit to invalid ".$1}++;
++        } elsif ($ThisLine =~ /security_sid_mls_copy:\s*invalid context\s*(\S+)/) {
++                    $InvalidContext{"context: ".$1}++;
+ 	} else { 
+             $othercount++;
+             $ThisLine =~ s/^\s*//;
+@@ -129,6 +131,8 @@ while ($ThisLine = <STDIN>) {
+ 	    $grants{$1.' '.$2.' ('.$3 . ')'}++;
+ 	} elsif ($ThisLine =~ /security_compute_sid:\s*invalid context\s*(\S+)\s*for\s*scontext=(\S+)\s*tcontext=\S+\s*tclass=(\S+)/ ) {
+ 	    $InvalidContext{$3." running as ".$2." should transit to invalid ".$1}++;
++        } elsif ($ThisLine =~ /security_sid_mls_copy:\s*invalid context\s*(\S+)/) {
++            $InvalidContext{"context: ".$1}++;                    
+ 	} else {
+             $othercount++;
+             $ThisLine =~ s/^\s*//;
+@@ -143,6 +147,8 @@ while ($ThisLine = <STDIN>) {
+ 	    $grants{$1.' '.$2.' ('.$3 . ')'}++;
+ 	} elsif ($ThisLine =~ /security_compute_sid:\s*invalid context\s*(\S+)\s*for\s*scontext=(\S+)\s*tcontext=\S+\s*tclass=(\S+)/ ) {
+    	    $InvalidContext{$3." running as ".$2." should transit to invalid ".$1}++;  
++   	} elsif ($ThisLine =~ /security_sid_mls_copy:\s*invalid context\s*(\S+)/) { 
++   	    $InvalidContext{"context: ".$1}++;
+ 	} else {
+             $othercount++;
+             $ThisLine =~ s/^\s*//;

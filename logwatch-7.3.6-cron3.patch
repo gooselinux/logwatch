@@ -1,0 +1,38 @@
+diff -up logwatch-7.3.6/scripts/services/cron.pom logwatch-7.3.6/scripts/services/cron
+--- logwatch-7.3.6/scripts/services/cron.pom	2008-08-06 13:45:48.000000000 +0200
++++ logwatch-7.3.6/scripts/services/cron	2008-08-06 13:45:48.000000000 +0200
+@@ -207,6 +207,9 @@ while (defined($ThisLine = <STDIN>)) {
+ 	(($Error) = ($ThisLine =~ /(failed to open PAM security session: (Permission denied|Module is unknown))/)) 
+ 	) {
+       $CRONDErr{$Error}++;
++   } elsif (( ($Error) = ($ThisLine =~ /ERROR: (failed to change SELinux context)/)) or
++           (($Error) = ($ThisLine =~ /ERROR:(Could not set exec context to .* for .*)/))) {
++      $SELCONTErr{$Error}++;
+    } else {
+       # Report any unmatched entries...
+       push @OtherList, "$ThisLine\n";
+@@ -337,8 +340,7 @@ if (%CRONDErr) {
+   for $key (keys %CRONDErr) {
+     print "    " . $key . ": " . $CRONDErr{$key} . " time(s)\n";
+   }
+-}
+-          
++}          
+ 
+ if (%INCRONDErr) {
+   printf "\n  incrond daemon errors \n";
+@@ -347,6 +349,14 @@ if (%INCRONDErr) {
+   }
+ }
+ 
++if (%SELCONTErr) {
++  printf "\n  SELinux context error \n";
++  for $key (keys %SELCONTErr) {
++    print "    " . $key . ": " . $SELCONTErr{$key} . "time(s)\n";
++  }
++}
++
++
+ if ($#OtherList >= 0) {
+    print "\n**Unmatched Entries**\n";
+    print @OtherList;

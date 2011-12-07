@@ -1,0 +1,12 @@
+diff -up logwatch-7.3.6/scripts/services/cron.pom logwatch-7.3.6/scripts/services/cron
+--- logwatch-7.3.6/scripts/services/cron.pom	2008-01-28 12:02:48.000000000 +0100
++++ logwatch-7.3.6/scripts/services/cron	2008-02-14 14:23:46.000000000 +0100
+@@ -146,7 +146,7 @@ while (defined($ThisLine = <STDIN>)) {
+          $Errors{$Reason}++;
+       } elsif ( ($FileName) = ($ThisLine =~ /BAD FILE MODE \((.+)\)/) ) {
+          $BFMFile{$FileName}++; 
+-      } elsif ( ($FileName) = ($ThisLine = /WRONG FILE OWNER \((.+)\)/) ) {
++      } elsif ( ($FileName) = ($ThisLine =~ /WRONG FILE OWNER \((.+)\)/) ) {
+          $WFO{$FileName}++;
+       } else {
+          # Report any unmatched entries...

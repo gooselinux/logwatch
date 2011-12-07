@@ -1,0 +1,22 @@
+diff -up logwatch-7.3.6/scripts/services/exim.pom logwatch-7.3.6/scripts/services/exim
+--- logwatch-7.3.6/scripts/services/exim.pom	2007-02-11 02:50:47.000000000 +0100
++++ logwatch-7.3.6/scripts/services/exim	2008-11-13 12:33:35.000000000 +0100
+@@ -275,11 +275,13 @@ if ($Detail >= $LvlRestart) {
+ }
+ 
+ if ($Detail >= $LvlRestart) {
+-   print "\n--- Queue Runners ---\n";
+-   # Start Queue
+-   $StartQueue and print "  Start queue run: $StartQueue Time(s)\n";
+-   # End Queue
+-   $EndQueue and print "  End queue run: $EndQueue Time(s)\n";
++   if (($StartQueue >0 ) or ($EndQueue > 0)) {
++      print "\n--- Queue Runners ---\n";
++      # Start Queue
++      $StartQueue and print "  Start queue run: $StartQueue Time(s)\n";
++      # End Queue
++      $EndQueue and print "  End queue run: $EndQueue Time(s)\n";
++   }
+ }
+ 
+ if ($Detail >= $LvlVerify) {

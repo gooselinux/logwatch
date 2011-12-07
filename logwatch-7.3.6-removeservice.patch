@@ -1,0 +1,53 @@
+diff -up logwatch-7.3.6/conf/logfiles/messages.conf.pom logwatch-7.3.6/conf/logfiles/messages.conf
+--- logwatch-7.3.6/conf/logfiles/messages.conf.pom	2009-06-15 10:59:52.000000000 +0200
++++ logwatch-7.3.6/conf/logfiles/messages.conf	2009-06-15 11:03:48.000000000 +0200
+@@ -25,13 +25,7 @@ Archive = archiv/messages-*
+ *ExpandRepeats
+ 
+ # Now, lets remove the services we don't care about at all...
+-*RemoveService = talkd
+-*RemoveService = telnetd
+-*RemoveService = inetd
+-*RemoveService = nfsd
+-*RemoveService = /sbin/mingetty
+-*RemoveService = netscreen
+-*RemoveService = NetScreen
++*RemoveService = talkd,telnetd,inetd,nfsd,/sbin/mingetty,netscreen,NetScreen
+ 
+ # Keep only the lines in the proper date range...
+ *OnlyHost
+diff -up logwatch-7.3.6/conf/logfiles/syslog.conf.pom logwatch-7.3.6/conf/logfiles/syslog.conf
+--- logwatch-7.3.6/conf/logfiles/syslog.conf.pom	2009-06-15 10:59:52.000000000 +0200
++++ logwatch-7.3.6/conf/logfiles/syslog.conf	2009-06-15 11:04:23.000000000 +0200
+@@ -16,11 +16,7 @@ LogFile = syslog.0
+ Archive = syslog.*.gz
+ Archive = syslog-*.gz
+ *ExpandRepeats
+-*RemoveService = talkd
+-*RemoveService = telnetd
+-*RemoveService = inetd
+-*RemoveService = nfsd
+-*RemoveService = /sbin/mingetty
++*RemoveService = talkd,telnetd,inetd,nfsd,/sbin/mingetty
+ *OnlyHost
+ *ApplyStdDate
+ 
+diff -up logwatch-7.3.6/scripts/shared/removeservice.pom logwatch-7.3.6/scripts/shared/removeservice
+--- logwatch-7.3.6/scripts/shared/removeservice.pom	2005-02-24 18:08:05.000000000 +0100
++++ logwatch-7.3.6/scripts/shared/removeservice	2009-06-15 11:02:51.000000000 +0200
+@@ -24,10 +24,13 @@ if ( $ENV{'LOGWATCH_DEBUG'} > 5 ) {
+ 
+ $ServiceName = $ARGV[0];
+ 
++#Change commas to pipes -mgt
++$ServiceName =~ s/,/|/g;
++
+ while (defined($ThisLine = <STDIN>)) {
+    $linesin++;
+-   unless ( ($ThisLine =~ m/^... .. ..:..:.. [^ ]* $ServiceName\[[0123456789]*\]: /oi) or
+-         ($ThisLine =~ m/^... .. ..:..:.. [^ ]* $ServiceName: /oi) ) {
++   unless ( ($ThisLine =~ m/^... .. ..:..:.. [^ ]* ($ServiceName)\[[0123456789]*\]: /oi) or
++            ($ThisLine =~ m/^... .. ..:..:.. [^ ]* (:\s*)?($ServiceName)\s*: /oi) ) {
+       $linesout++;
+       print $ThisLine;
+    }

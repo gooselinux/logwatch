@@ -1,0 +1,12 @@
+diff -up logwatch-7.3.6/conf/logwatch.conf.pom logwatch-7.3.6/conf/logwatch.conf
+--- logwatch-7.3.6/conf/logwatch.conf.pom	2007-05-15 07:12:18.000000000 +0200
++++ logwatch-7.3.6/conf/logwatch.conf	2007-11-13 14:35:48.000000000 +0100
+@@ -45,7 +45,7 @@ MailFrom = Logwatch
+ 
+ # If set to 'Yes', the report will be sent to stdout instead of being
+ # mailed to above person.
+-Print = Yes
++Print =
+ 
+ # if set, the results will be saved in <filename> instead of mailed
+ # or displayed.

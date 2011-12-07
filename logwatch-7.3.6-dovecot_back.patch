@@ -1,0 +1,110 @@
+diff -up logwatch-7.3.6/scripts/services/dovecot.pom logwatch-7.3.6/scripts/services/dovecot
+--- logwatch-7.3.6/scripts/services/dovecot.pom	2007-03-17 20:13:13.000000000 +0100
++++ logwatch-7.3.6/scripts/services/dovecot	2008-03-05 11:12:56.000000000 +0100
+@@ -1,7 +1,16 @@
+ ########################################################
+-# $Id: dovecot,v 1.6 2007/03/17 19:13:13 bjorn Exp $
++# $Id: dovecot,v 1.9 2008/02/14 18:19:51 mike Exp $
+ ########################################################
+ # $Log: dovecot,v $
++# Revision 1.9  2008/02/14 18:19:51  mike
++# Patch from Gilles Detillieux summarize pop3/imap -mgt
++#
++# Revision 1.8  2008/01/16 20:11:04  bjorn
++# Filtering dovecot start-up message, by Gilles Detillieux.
++#
++# Revision 1.7  2007/06/18 03:54:45  bjorn
++# Better printing of IPv6 addresses, by Patrick Vande Walle.
++#
+ # Revision 1.6  2007/03/17 19:13:13  bjorn
+ # Now handling dovecot starts/kills.
+ #
+@@ -56,18 +65,20 @@ while (defined($ThisLine = <STDIN>)) {
+         # We don't care about these                                                                                                                    
+      } elsif ( $ThisLine =~ /Killed with signal /) {
+          $End++;
+-     } elsif ( $ThisLine =~ /Dovecot starting up$/) {
++     } elsif ( $ThisLine =~ /Dovecot (v\d[^ ]* |)starting up$/) {
+          $Restarts++;
+          $End = 0;
+      } elsif ( ($User, $Host) = ( $ThisLine =~ /^pop3-login: Login: (.*?) \[(.*)\]/ ) ) {
+       if ($Host !~ /$IgnoreHost/) {
+          $Login{$User}{$Host}++;
++         $LoginPOP3{$User}++;
+          $ConnectionPOP3{$Host}++;
+          $Connection{$Host}++; 
+       }
+    } elsif ( ($User, $Host) = ( $ThisLine =~ /^imap-login: Login: (.*?) \[(.*)\]/ ) ) {
+       if ($Host !~ /$IgnoreHost/) {
+          $Login{$User}{$Host}++;
++         $LoginIMAP{$User}++;
+          $ConnectionIMAP{$Host}++;
+          $Connection{$Host}++; 
+       }
+@@ -76,12 +87,14 @@ while (defined($ThisLine = <STDIN>)) {
+     } elsif ( ($User, $Host) = ( $ThisLine =~ /^dovecot: pop3-login: Login: user=\<(.*?)\>.*rip=(.*)\, lip=/ ) ) {
+       if ($Host !~ /$IgnoreHost/) {
+          $Login{$User}{$Host}++;
++         $LoginPOP3{$User}++;
+          $ConnectionPOP3{$Host}++;
+          $Connection{$Host}++;
+       }
+    } elsif ( ($User, $Host) = ( $ThisLine =~ /^dovecot: imap-login: Login: user=\<(.*?)\>.*rip=(.*)\, lip=/) ) {
+       if ($Host !~ /$IgnoreHost/) {
+          $Login{$User}{$Host}++;
++         $LoginIMAP{$User}++;
+          $ConnectionIMAP{$Host}++;
+          $Connection{$Host}++;
+        }
+@@ -132,8 +145,8 @@ if ( ( $Detail >=5 ) and $Restarts ) {
+ if ( ( $Detail >= 5 ) and (keys %Connection)) {
+    print     "\n[Dovecot IMAP and POP3] Connections:".
+              "\n====================================".
+-             "\n                      Host |     POP3    |   IMAP   |   Total ".
+-             "\n-------------------------- | ----------- |--------- | ---------";
++             "\n                                  Host |    POP3   |   IMAP   |   Total ".
++             "\n-------------------------------------- | --------- |--------- | ---------";
+   
+    $TLSInitFail = 0;
+    foreach $Host (sort keys %Connection) {
+@@ -151,9 +164,9 @@ if ( ( $Detail >= 5 ) and (keys %Connect
+ # Cleanly display IPv4 addresses
+       $Host=~ s/::ffff://;
+       $HostLength = length($Host);
+-      $HostSpaceLength = 26 - $HostLength;
++      $HostSpaceLength = 38 - $HostLength;
+       $CountLength = length("$Conns");
+-      $CountSpaceLength = 12 - $CountLength;
++      $CountSpaceLength = 10 - $CountLength;
+       $IMAPLength = length("$IMAP");
+       $IMAPSpaceLength = 9 - $IMAPLength;
+       $TotalLenght = length("$Total");
+@@ -165,12 +178,12 @@ if ( ( $Detail >= 5 ) and (keys %Connect
+       $TotalCount += $Total;
+    }
+    $POP3Length = length("$POP3Count");
+-   $POP3SpaceLength = 40 - $POP3Length;
++   $POP3SpaceLength = 50 - $POP3Length;
+    $IMAPLength = length("$IMAPCount");
+    $IMAPSpaceLength = 9 - $IMAPLength;
+    $TotalLength = length("$TotalCount");
+    $totalSpaceLength = 10 - $TotalLength;
+-   print "\n" . "-" x 63;
++   print "\n" . "-" x 73;
+    print "\n" . " " x $POP3SpaceLength . $POP3Count . " |" . " " x $IMAPSpaceLength . $IMAPCount .
+                  " |" . " " x $totalSpaceLength . $TotalCount . "\n";
+ }
+@@ -180,6 +193,13 @@ if ( ( $Detail >= 10 ) and (keys %Login)
+    $LoginCount = 0;
+    foreach my $User (keys %Login) {
+       print "\n\n  User $User:";
++      if ($LoginPOP3{$User} > 0 || $LoginIMAP{$User} > 0) {
++         print "   (";
++         if ($LoginPOP3{$User} > 0) { print "$LoginPOP3{$User} POP3"; };
++         if ($LoginPOP3{$User} > 0 && $LoginIMAP{$User} > 0) { print "/"; };
++         if ($LoginIMAP{$User} > 0) { print "$LoginIMAP{$User} IMAP"; };
++         print ")";
++      }
+       $UserCount = 0;
+       $NumHosts = 0;
+       foreach $Host (keys %{$Login{$User}}) {

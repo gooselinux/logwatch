@@ -1,0 +1,18 @@
+diff -up logwatch-7.3.6/scripts/logwatch.pl.pom logwatch-7.3.6/scripts/logwatch.pl
+--- logwatch-7.3.6/scripts/logwatch.pl.pom	2008-06-10 14:29:41.000000000 +0200
++++ logwatch-7.3.6/scripts/logwatch.pl	2008-06-10 14:32:51.000000000 +0200
+@@ -61,7 +61,13 @@ my (@ReadConfigNames, @ReadConfigValues)
+ 
+ # Default config here...
+ $Config{'detail'} = 0;
+-$Config{'mailto'} = "root";
++# if MAILTO is set in the environment, grab it, as it may be used by cron 
++# or anacron 
++if ($ENV{'MAILTO'}) { 
++    $Config{'mailto'} = $ENV{'MAILTO'}; 
++} else { 
++    $Config{'mailto'} = "root"; 
++} 
+ $Config{'mailfrom'} = "Logwatch";
+ $Config{'save'} = "";
+ $Config{'print'} = 1;

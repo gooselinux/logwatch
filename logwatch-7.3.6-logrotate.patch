@@ -1,0 +1,373 @@
+diff -up logwatch-7.3.6/conf/logfiles/tac_acc.conf.pom logwatch-7.3.6/conf/logfiles/tac_acc.conf
+--- logwatch-7.3.6/conf/logfiles/tac_acc.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/tac_acc.conf	2008-08-15 10:45:26.000000000 +0200
+@@ -5,6 +5,7 @@ LogFile = tac_acc.log
+ # (optionally containing wildcards) that tell where they are...
+ #If you use a "-" in naming add that as well -mgt
+ Archive = tac_acc.log.*
++Archive = tac_acc.log-*
+ 
+ # Keep only the lines in the proper date range...
+ *ApplyStdDate
+diff -up logwatch-7.3.6/conf/logfiles/extreme-networks.conf.pom logwatch-7.3.6/conf/logfiles/extreme-networks.conf
+--- logwatch-7.3.6/conf/logfiles/extreme-networks.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/extreme-networks.conf	2008-08-15 10:18:58.000000000 +0200
+@@ -18,6 +18,7 @@ LogFile = extreme-networks.log
+ # If the archives are searched, here is one or more line
+ # (optionally containing wildcards) that tell where they are...
+ Archive = extreme-networks.log.*
++Archive = extreme-networks.log-*
+ 
+ # Expand the repeats (actually just removes them now)
+ #*ExpandRepeats
+diff -up logwatch-7.3.6/conf/logfiles/cisco.conf.pom logwatch-7.3.6/conf/logfiles/cisco.conf
+--- logwatch-7.3.6/conf/logfiles/cisco.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/cisco.conf	2008-08-15 13:26:31.000000000 +0200
+@@ -18,6 +18,7 @@ LogFile = cisco.log
+ # If the archives are searched, here is one or more line
+ # (optionally containing wildcards) that tell where they are...
+ Archive = cisco.log.*
++Archive = cisco.log-*
+ 
+ # Expand the repeats (actually just removes them now)
+ #*ExpandRepeats
+diff -up logwatch-7.3.6/conf/logfiles/netscreen.conf.pom logwatch-7.3.6/conf/logfiles/netscreen.conf
+--- logwatch-7.3.6/conf/logfiles/netscreen.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/netscreen.conf	2008-08-15 10:29:59.000000000 +0200
+@@ -19,6 +19,7 @@ LogFile = netscreen.log
+ # (optionally containing wildcards) that tell where they are...
+ #If you use a "-" in naming add that as well -mgt
+ Archive = netscreen.log.*
++Archive = netscreen.log-*
+ 
+ # Expand the repeats (actually just removes them now)
+ #*ExpandRepeats
+diff -up logwatch-7.3.6/conf/logfiles/qmail-pop3ds-current.conf.pom logwatch-7.3.6/conf/logfiles/qmail-pop3ds-current.conf
+diff -up logwatch-7.3.6/conf/logfiles/secure.conf.pom logwatch-7.3.6/conf/logfiles/secure.conf
+--- logwatch-7.3.6/conf/logfiles/secure.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/secure.conf	2008-08-15 10:33:10.000000000 +0200
+@@ -23,6 +23,11 @@ Archive = secure.*
+ Archive = archiv/secure.*
+ Archive = authlog.*
+ Archive = auth.log.*.gz
++Archive = secure-*
++Archive = archiv/secure-*
++Archive = authlog-*
++Archive = auth.log-*.gz
++
+ 
+ # Expand the repeats (actually just removes them now)
+ *ExpandRepeats
+diff -up logwatch-7.3.6/conf/logfiles/syslog.conf.pom logwatch-7.3.6/conf/logfiles/syslog.conf
+--- logwatch-7.3.6/conf/logfiles/syslog.conf.pom	2006-03-21 04:01:34.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/syslog.conf	2008-08-15 10:45:13.000000000 +0200
+@@ -14,6 +14,7 @@ Archive = 
+ LogFile = syslog
+ LogFile = syslog.0
+ Archive = syslog.*.gz
++Archive = syslog-*.gz
+ *ExpandRepeats
+ *RemoveService = talkd
+ *RemoveService = telnetd
+diff -up logwatch-7.3.6/conf/logfiles/clam-update.conf.pom logwatch-7.3.6/conf/logfiles/clam-update.conf
+--- logwatch-7.3.6/conf/logfiles/clam-update.conf.pom	2005-10-31 17:21:20.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/clam-update.conf	2008-08-15 09:54:27.000000000 +0200
+@@ -53,5 +53,10 @@ Archive = freshclam.log.*
+ Archive = clamav/freshclam.log.*
+ Archive = archiv/clam-update.*
+ Archive = archiv/freshclam.log.*
++Archive = clam-update-*
++Archive = freshclam.log-*
++Archive = clamav/freshclam.log-*
++Archive = archiv/clam-update-*
++Archive = archiv/freshclam.log-*
+ 
+ # vi: shiftwidth=3 tabstop=3 et
+diff -up logwatch-7.3.6/conf/logfiles/emerge.conf.pom logwatch-7.3.6/conf/logfiles/emerge.conf
+--- logwatch-7.3.6/conf/logfiles/emerge.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/emerge.conf	2008-08-15 10:02:51.000000000 +0200
+@@ -18,6 +18,7 @@ LogFile = emerge.log
+ # (optionally containing wildcards) that tell where they are...
+ #If you use a "-" in naming add that as well -mgt
+ Archive = emerge.log.*
++Archive = emerge.log-*
+ 
+ #*ApplyUSDate
+ 
+diff -up logwatch-7.3.6/conf/logfiles/resolver.conf.pom logwatch-7.3.6/conf/logfiles/resolver.conf
+diff -up logwatch-7.3.6/conf/logfiles/daemon.conf.pom logwatch-7.3.6/conf/logfiles/daemon.conf
+--- logwatch-7.3.6/conf/logfiles/daemon.conf.pom	2006-03-21 04:01:34.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/daemon.conf	2008-08-15 09:57:00.000000000 +0200
+@@ -12,6 +12,8 @@
+ LogFile = daemon.log
+ LogFile = daemon.log.0
+ Archive = daemon.log.*.gz
++Archive = daemon.log-*.gz
++
+ *ExpandRepeats
+ *OnlyHost
+ *ApplyStdDate
+diff -up logwatch-7.3.6/conf/logfiles/netopia.conf.pom logwatch-7.3.6/conf/logfiles/netopia.conf
+--- logwatch-7.3.6/conf/logfiles/netopia.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/netopia.conf	2008-08-15 10:29:49.000000000 +0200
+@@ -19,6 +19,7 @@ LogFile = netopia.log
+ # (optionally containing wildcards) that tell where they are...
+ #If you use a "-" in naming add that as well -mgt
+ Archive = netopia.log.*
++Archive = netopia.log-*
+ 
+ # Expand the repeats (actually just removes them now)
+ #*ExpandRepeats
+diff -up logwatch-7.3.6/conf/logfiles/qmail-smtpd-current.conf.pom logwatch-7.3.6/conf/logfiles/qmail-smtpd-current.conf
+diff -up logwatch-7.3.6/conf/logfiles/xferlog.conf.pom logwatch-7.3.6/conf/logfiles/xferlog.conf
+--- logwatch-7.3.6/conf/logfiles/xferlog.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/xferlog.conf	2008-08-15 12:39:03.000000000 +0200
+@@ -18,5 +18,7 @@ LogFile = xferlog
+ #If you use a "-" in naming add that as well -mgt
+ Archive = xferlog.*
+ Archive = archiv/xferlog.*
++Archive = xferlog-* 
++Archive = archiv/xferlog-*
+ 
+ # vi: shiftwidth=3 tabstop=3 et
+diff -up logwatch-7.3.6/conf/logfiles/fail2ban.conf.pom logwatch-7.3.6/conf/logfiles/fail2ban.conf
+--- logwatch-7.3.6/conf/logfiles/fail2ban.conf.pom	2006-12-15 05:53:39.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/fail2ban.conf	2008-08-15 12:44:41.000000000 +0200
+@@ -28,4 +28,5 @@ LogFile = fail2ban.log
+ 
+ Archive = fail2ban.log.1
+ Archive = fail2ban.log.*.gz
++Archive = fail2ban.log-*
+ 
+diff -up logwatch-7.3.6/conf/logfiles/samba.conf.pom logwatch-7.3.6/conf/logfiles/samba.conf
+diff -up logwatch-7.3.6/conf/logfiles/iptables.conf.pom logwatch-7.3.6/conf/logfiles/iptables.conf
+--- logwatch-7.3.6/conf/logfiles/iptables.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/iptables.conf	2008-08-15 10:26:20.000000000 +0200
+@@ -17,6 +17,7 @@ LogFile = ulogd/ulogd.syslogemu
+ # (optionally containing wildcards) that tell where they are...
+ #If you use a "-" in naming add that as well -mgt
+ Archive = ulogd/ulogd.syslogmenu.*
++Archive = ulogd/ulogd.syslogmenu-*
+ 
+ # Keep only the lines in the proper date range...
+ *ApplyStdDate
+diff -up logwatch-7.3.6/conf/logfiles/messages.conf.pom logwatch-7.3.6/conf/logfiles/messages.conf
+--- logwatch-7.3.6/conf/logfiles/messages.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/messages.conf	2008-08-15 10:26:58.000000000 +0200
+@@ -18,6 +18,8 @@ LogFile = messages
+ #If you use a "-" in naming add that as well -mgt
+ Archive = messages.*
+ Archive = archiv/messages.*
++Archive = messages-*
++Archive = archiv/messages-*
+ 
+ # Expand the repeats (actually just removes them now)
+ *ExpandRepeats
+diff -up logwatch-7.3.6/conf/logfiles/pureftp.conf.pom logwatch-7.3.6/conf/logfiles/pureftp.conf
+--- logwatch-7.3.6/conf/logfiles/pureftp.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/pureftp.conf	2008-08-15 10:30:47.000000000 +0200
+@@ -17,6 +17,7 @@ LogFile = pureftp/syslog.log
+ # (optionally containing wildcards) that tell where they are...
+ #If you use a "-" in naming add that as well -mgt
+ Archive = pureftp/syslog.log.*
++Archive = pureftp/syslog.log-*
+ 
+ # Keep only the lines in the proper date range...
+ *OnlyHost
+diff -up logwatch-7.3.6/conf/logfiles/http.conf.pom logwatch-7.3.6/conf/logfiles/http.conf
+--- logwatch-7.3.6/conf/logfiles/http.conf.pom	2007-04-15 23:56:53.000000000 +0200
++++ logwatch-7.3.6/conf/logfiles/http.conf	2008-08-15 10:26:09.000000000 +0200
+@@ -22,7 +22,12 @@ Archive = apache/*access.log.*.gz
+ Archive = apache2/*access.log.*.gz
+ Archive = apache2/*access_log.*.gz
+ Archive = apache-ssl/*access.log.*.gz
+-
++Archive = archiv/httpd/*access_log-*
++Archive = httpd/*access_log-*
++Archive = apache/*access.log-*.gz
++Archive = apache2/*access.log-*.gz
++Archive = apache2/*access_log-*.gz
++Archive = apache-ssl/*access.log-*.gz
+ 
+ # Expand the repeats (actually just removes them now)
+ *ExpandRepeats
+diff -up logwatch-7.3.6/conf/logfiles/kernel.conf.pom logwatch-7.3.6/conf/logfiles/kernel.conf
+--- logwatch-7.3.6/conf/logfiles/kernel.conf.pom	2006-03-21 04:01:34.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/kernel.conf	2008-08-15 10:26:30.000000000 +0200
+@@ -12,6 +12,7 @@
+ LogFile = kern.log
+ LogFile = kern.log.0
+ Archive = kern.log.*.gz
++Archive = kern.log-*.gz
+ *ExpandRepeats
+ *OnlyHost
+ *ApplyStdDate
+diff -up logwatch-7.3.6/conf/logfiles/exim.conf.pom logwatch-7.3.6/conf/logfiles/exim.conf
+--- logwatch-7.3.6/conf/logfiles/exim.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/exim.conf	2008-08-15 10:18:30.000000000 +0200
+@@ -20,6 +20,10 @@ Archive = exim/main.log.*
+ Archive = archiv/exim/main.log.*
+ Archive = exim/mainlog.*
+ Archive = exim4/mainlog.*
++Archive = exim/main.log-*
++Archive = archiv/exim/main.log-*
++Archive = exim/mainlog-*
++Archive = exim4/mainlog-*
+ 
+ ########################################################
+ # This was written by:
+diff -up logwatch-7.3.6/conf/logfiles/yum.conf.pom logwatch-7.3.6/conf/logfiles/yum.conf
+diff -up logwatch-7.3.6/conf/logfiles/rt314.conf.pom logwatch-7.3.6/conf/logfiles/rt314.conf
+--- logwatch-7.3.6/conf/logfiles/rt314.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/rt314.conf	2008-08-15 10:32:42.000000000 +0200
+@@ -9,6 +9,7 @@ LogFile = netgear.log
+ # (optionally containing wildcards) that tell where they are...
+ #If you use a "-" in naming add that as well -mgt
+ Archive = netgear.log.*
++Archive = netgear.log-*
+ 
+ # Keep only the lines in the proper date range...
+ *ApplyStdDate
+diff -up logwatch-7.3.6/conf/logfiles/dpkg.conf.pom logwatch-7.3.6/conf/logfiles/dpkg.conf
+--- logwatch-7.3.6/conf/logfiles/dpkg.conf.pom	2006-12-15 05:39:22.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/dpkg.conf	2008-08-15 10:02:32.000000000 +0200
+@@ -17,6 +17,6 @@ LogFile = dpkg.log.1
+ # Note: if these are gzipped, you need to end with a .gz even if
+ #       you use wildcards...
+ Archive = dpkg.log.*.gz
+-
++Archive = dpkg.log-*.gz
+ *ApplyEuroDate
+ # vi: shiftwidth=3 tabstop=3 et
+diff -up logwatch-7.3.6/conf/logfiles/autorpm.conf.pom logwatch-7.3.6/conf/logfiles/autorpm.conf
+diff -up logwatch-7.3.6/conf/logfiles/sonicwall.conf.pom logwatch-7.3.6/conf/logfiles/sonicwall.conf
+--- logwatch-7.3.6/conf/logfiles/sonicwall.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/sonicwall.conf	2008-08-15 10:33:24.000000000 +0200
+@@ -20,6 +20,8 @@ LogFile = sonicwall.log
+ #If you use a "-" in naming add that as well -mgt
+ Archive = sonicwall.log.*
+ Archive = archiv/sonicwall.log.*
++Archive = sonicwall.log-*
++Archive = archiv/sonicwall.log-*
+ 
+ # Keep only the lines in the proper date range...
+ *OnlyHost
+diff -up logwatch-7.3.6/conf/logfiles/up2date.conf.pom logwatch-7.3.6/conf/logfiles/up2date.conf
+--- logwatch-7.3.6/conf/logfiles/up2date.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/up2date.conf	2008-08-15 10:45:35.000000000 +0200
+@@ -17,5 +17,6 @@ LogFile = up2date
+ # (optionally containing wildcards) that tell where they are...
+ #If you use a "-" in naming add that as well -mgt
+ Archive = up2date.*
++Archive = up2date-*
+ 
+ # vi: shiftwidth=3 tabstop=3 et
+diff -up logwatch-7.3.6/conf/logfiles/pix.conf.pom logwatch-7.3.6/conf/logfiles/pix.conf
+--- logwatch-7.3.6/conf/logfiles/pix.conf.pom	2006-12-20 05:37:13.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/pix.conf	2008-08-15 10:30:26.000000000 +0200
+@@ -9,5 +9,6 @@
+ 
+ LogFile = pix.log
+ Archive = pix.log.*
++Archive = pix.log-*
+ 
+ # vi: shiftwidth=3 tabstop=3 et
+diff -up logwatch-7.3.6/conf/logfiles/denyhosts.conf.pom logwatch-7.3.6/conf/logfiles/denyhosts.conf
+--- logwatch-7.3.6/conf/logfiles/denyhosts.conf.pom	2006-11-12 19:32:54.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/denyhosts.conf	2008-08-15 09:57:19.000000000 +0200
+@@ -7,7 +7,7 @@
+ #
+ ###############################################################################
+ LogFile = denyhosts
+-Archive = 
+ Archive = denyhosts.*
++Archive = denyhosts-*
+ *ApplyEuroDate
+ # vi: shiftwidth=3 tabstop=3 et
+diff -up logwatch-7.3.6/conf/logfiles/bfd.conf.pom logwatch-7.3.6/conf/logfiles/bfd.conf
+--- logwatch-7.3.6/conf/logfiles/bfd.conf.pom	2007-04-15 21:48:23.000000000 +0200
++++ logwatch-7.3.6/conf/logfiles/bfd.conf	2008-08-15 09:41:30.000000000 +0200
+@@ -10,5 +10,6 @@
+ # Which logfile group...
+ LogFile = /var/log/bfd_log
+ Archive = /var/log/bfd_log.*
++Archive = /var/log/bfd_log-*
+ 
+ 
+diff -up logwatch-7.3.6/conf/logfiles/maillog.conf.pom logwatch-7.3.6/conf/logfiles/maillog.conf
+--- logwatch-7.3.6/conf/logfiles/maillog.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/maillog.conf	2008-08-15 10:26:46.000000000 +0200
+@@ -24,6 +24,10 @@ Archive = maillog.*
+ Archive = syslog.*
+ Archive = archiv/maillog.*
+ Archive = mail.log.*.gz
++Archive = maillog-*
++Archive = syslog-*
++Archive = archiv/maillog-*
++Archive = mail.log-*.gz
+ 
+ 
+ # Expand the repeats (actually just removes them now)
+diff -up logwatch-7.3.6/conf/logfiles/windows.conf.pom logwatch-7.3.6/conf/logfiles/windows.conf
+--- logwatch-7.3.6/conf/logfiles/windows.conf.pom	2006-03-22 18:46:22.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/windows.conf	2008-08-15 10:55:33.000000000 +0200
+@@ -19,6 +19,8 @@ LogFile = windows.log
+ #       you use wildcards...
+ Archive = windows.log.*
+ Archive = windows.log.*.gz
++Archive = windows.log-*
++Archive = windows.log-*.gz
+ 
+ # Expand the repeats (actually just removes them now)
+ *ExpandRepeats
+diff -up logwatch-7.3.6/conf/logfiles/cron.conf.pom logwatch-7.3.6/conf/logfiles/cron.conf
+--- logwatch-7.3.6/conf/logfiles/cron.conf.pom	2005-02-24 18:05:18.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/cron.conf	2008-08-15 09:56:42.000000000 +0200
+@@ -19,6 +19,8 @@ LogFile = cron
+ # (optionally containing wildcards) that tell where they are...
+ Archive = cron.*
+ Archive = archiv/cron.*
++Archive = cron-*
++Archive = archiv/cron-*
+ 
+ *OnlyHost
+ *RemoveService = anacron
+diff -up logwatch-7.3.6/conf/logfiles/eventlog.conf.pom logwatch-7.3.6/conf/logfiles/eventlog.conf
+--- logwatch-7.3.6/conf/logfiles/eventlog.conf.pom	2007-04-29 00:50:24.000000000 +0200
++++ logwatch-7.3.6/conf/logfiles/eventlog.conf	2008-08-15 13:50:52.000000000 +0200
+@@ -20,6 +20,10 @@ Archive = eventlog.*
+ Archive = eventlog.*.gz
+ Archive = archiv/eventlog.*
+ Archive = archiv/eventlog.*.gz
++Archive = eventlog-*
++Archive = eventlog-*.gz
++Archive = archiv/eventlog-*
++Archive = archiv/eventlog-*.gz
+ 
+ # Expand the repeats (actually just removes them now)
+ *ExpandRepeats
+diff -up logwatch-7.3.6/conf/logfiles/vsftpd.conf.pom logwatch-7.3.6/conf/logfiles/vsftpd.conf
+--- logwatch-7.3.6/conf/logfiles/vsftpd.conf.pom	2006-03-21 02:47:28.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/vsftpd.conf	2008-08-15 10:55:20.000000000 +0200
+@@ -19,6 +19,8 @@ LogFile = vsftpd.log
+ #If you use a "-" in naming add that as well -mgt
+ Archive = vsftpd.log.*
+ Archive = archiv/vsftpd.log.*
++Archive = vsftpd.log-*
++Archive = archiv/vsftpd.log-*
+ 
+ *ApplyStdDate = 
+ # vi: shiftwidth=3 tabstop=3 et
+diff -up logwatch-7.3.6/conf/logfiles/php.conf.pom logwatch-7.3.6/conf/logfiles/php.conf
+--- logwatch-7.3.6/conf/logfiles/php.conf.pom	2006-11-12 19:28:31.000000000 +0100
++++ logwatch-7.3.6/conf/logfiles/php.conf	2008-08-15 10:30:11.000000000 +0200
+@@ -25,5 +25,6 @@ LogFile = httpd/php_log
+ # (optionally containing wildcards) that tell where they are...
+ #If you use a "-" in naming add that as well -mgt
+ Archive = httpd/php_log.*
++Archive = httpd/php_log-*
+ 
+ # vi: shiftwidth=3 tabstop=3 et
+diff -up logwatch-7.3.6/conf/logfiles/qmail-pop3d-current.conf.pom logwatch-7.3.6/conf/logfiles/qmail-pop3d-current.conf
+diff -up logwatch-7.3.6/conf/logfiles/dnssec.conf.pom logwatch-7.3.6/conf/logfiles/dnssec.conf
+diff -up logwatch-7.3.6/conf/logfiles/qmail-send-current.conf.pom logwatch-7.3.6/conf/logfiles/qmail-send-current.conf

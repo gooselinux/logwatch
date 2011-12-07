@@ -1,0 +1,12 @@
+diff -up logwatch-7.3.6/conf/services/sendmail.conf.pom logwatch-7.3.6/conf/services/sendmail.conf
+--- logwatch-7.3.6/conf/services/sendmail.conf.pom	2005-12-01 00:58:59.000000000 +0100
++++ logwatch-7.3.6/conf/services/sendmail.conf	2008-04-30 15:32:38.000000000 +0200
+@@ -34,7 +34,7 @@ LogFile = maillog
+ # logwatch Detail setting.
+ #
+ # Example:
+-#Detail = 5
++Detail = 3
+ #
+ # The defined values of Detail are as follows:
+ # Detail >= 0: Will print:";
